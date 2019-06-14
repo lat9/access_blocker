@@ -11,54 +11,6 @@ class zcObserverAccessBlocker extends base
     public function __construct() 
     {
         if (defined('ACCESSBLOCK_ENABLED') && ACCESSBLOCK_ENABLED == 'true') {
-            if (!isset($_SESSION['access_blocked'])) {
-                if (empty($_SERVER['REMOTE_ADDR']) || $_SERVER['REMOTE_ADDR'] == '.') {
-                    $_SESSION['blocked_message'] = 'Remote address not set. ';
-                    $_SESSION['access_blocked'] = true;
-                } elseif ($this->isIpBlocked($_SERVER['REMOTE_ADDR'])) {
-                    $_SESSION['blocked_message'] = $this->blocked_message;
-                    $_SESSION['access_blocked'] = true;
-                } else {
-                    $access_blocked = false;
-                    if (ACCESSBLOCK_IPDATA_API_KEY != '') {
-                        require DIR_WS_CLASSES . 'ipData.php';
-                        $ipData = new ipData(ACCESSBLOCK_IPDATA_API_KEY, $_SERVER['REMOTE_ADDR']);
-                        
-                        $access_blocked = $ipData->isIpThreat();
-                        $this->blocked_message = 'IP address is identified as a threat by ipdata.co. ';
-                        
-                        if (!$access_blocked) {
-                            $ip_country = $ipData->getIpCountry();
-                            if ($ip_country !== false && ACCESSBLOCK_BLOCKED_COUNTRIES !== '') {
-                                $blocked_countries = explode(',', str_replace(' ', '', strtoupper(ACCESSBLOCK_BLOCKED_COUNTRIES)));
-                                
-                                $access_blocked = in_array($ip_country, $blocked_countries);
-                                if ($access_blocked) {
-                                    $this->blocked_message = "Access blocked by IP-based country ($ip_country). ";
-                                }
-                            }
-                            
-                            $ip_organization = $ipData->getIpOrganization();
-                            if ($ip_organization !== false && ACCESSBLOCK_BLOCKED_ORGS !== '') {
-                                $blocked_orgs = explode(',', str_replace(' ', '', ACCESSBLOCK_BLOCKED_ORGS));
-                                
-                                foreach ($blocked_orgs as $next_org) {
-                                    if (stripos($ip_organization, $next_org) !== false) {
-                                        $this->blocked_message .= "Access blocked by IP-based organization ($next_org). ";
-                                        $access_blocked = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if ($access_blocked) {
-                        $_SESSION['blocked_message'] = $this->blocked_message;
-                        $_SESSION['access_blocked'] = true;
-                    }
-                }
-            }
-            
             $this->debug = (ACCESSBLOCK_DEBUG == 'true');
             $this->logfile = DIR_FS_LOGS . '/accesses_blocked_' . date('Y_m') . '.log';
             
@@ -75,6 +27,54 @@ class zcObserverAccessBlocker extends base
 
     public function update (&$class, $eventID, $p1, &$p2, &$p3, &$p4, &$p5, &$p6, &$p7) 
     {
+        if (!isset($_SESSION['access_blocked'])) {
+            if (empty($_SERVER['REMOTE_ADDR']) || $_SERVER['REMOTE_ADDR'] == '.') {
+                $_SESSION['blocked_message'] = 'Remote address not set. ';
+                $_SESSION['access_blocked'] = true;
+            } elseif ($this->isIpBlocked($_SERVER['REMOTE_ADDR'])) {
+                $_SESSION['blocked_message'] = $this->blocked_message;
+                $_SESSION['access_blocked'] = true;
+            } else {
+                $access_blocked = false;
+                if (ACCESSBLOCK_IPDATA_API_KEY != '') {
+                    require DIR_WS_CLASSES . 'ipData.php';
+                    $ipData = new ipData(ACCESSBLOCK_IPDATA_API_KEY, $_SERVER['REMOTE_ADDR']);
+                    
+                    $access_blocked = $ipData->isIpThreat();
+                    $this->blocked_message = 'IP address is identified as a threat by ipdata.co. ';
+                    
+                    if (!$access_blocked) {
+                        $ip_country = $ipData->getIpCountry();
+                        if ($ip_country !== false && ACCESSBLOCK_BLOCKED_COUNTRIES !== '') {
+                            $blocked_countries = explode(',', str_replace(' ', '', strtoupper(ACCESSBLOCK_BLOCKED_COUNTRIES)));
+                            
+                            $access_blocked = in_array($ip_country, $blocked_countries);
+                            if ($access_blocked) {
+                                $this->blocked_message = "Access blocked by IP-based country ($ip_country). ";
+                            }
+                        }
+                        
+                        $ip_organization = $ipData->getIpOrganization();
+                        if ($ip_organization !== false && ACCESSBLOCK_BLOCKED_ORGS !== '') {
+                            $blocked_orgs = explode(',', str_replace(' ', '', ACCESSBLOCK_BLOCKED_ORGS));
+                            
+                            foreach ($blocked_orgs as $next_org) {
+                                if (stripos($ip_organization, $next_org) !== false) {
+                                    $this->blocked_message .= "Access blocked by IP-based organization ($next_org). ";
+                                    $access_blocked = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if ($access_blocked) {
+                    $_SESSION['blocked_message'] = $this->blocked_message;
+                    $_SESSION['access_blocked'] = true;
+                }
+            }
+        }
+        
         switch ($eventID) {
             case 'NOTIFY_CONTACT_US_CAPTCHA_CHECK':
                 if (isset($_SESSION['access_blocked']) || $this->isEmailAddressBlocked($_POST['email']) || $this->isContentBlocked($_POST['enquiry'])) {

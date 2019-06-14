@@ -3,7 +3,7 @@
 // Part of the Access Blocker plugin, created by lat9 (https://vinosdefrutastropicales.com)
 // Copyright (c) 2019, Vinos de Frutas Tropicales.
 //
-define('ACCESSBLOCK_CURRENT_VERSION', '1.0.1-beta1');
+define('ACCESSBLOCK_CURRENT_VERSION', '1.0.1-beta2');
 define('ACCESSBLOCK_LAST_UPDATE_DATE', '2019-06-14');
 
 // -----
