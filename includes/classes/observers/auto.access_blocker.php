@@ -175,7 +175,7 @@ class zcObserverAccessBlocker extends base
     protected function logBlockedAccesses($blocked_page, $email_address)
     {
         if ($this->debug) {
-            $ip_address = (!empty($_SESSION['REMOTE_ADDR'])) ? $_SESSION['REMOTE_ADDR'] : 'not provided';
+            $ip_address = (!empty($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : 'not provided';
             $blocked_session_message = (isset($_SESSION['blocked_message'])) ? $_SESSION['blocked_message'] : '';
             $message = date('Y-m-d H:i:s') . ": Access blocked on $blocked_page page for IP Address ($ip_address) and/or email ($email_address). " . $blocked_session_message . $this->blocked_message;
             error_log($message . PHP_EOL, 3, $this->logfile);
