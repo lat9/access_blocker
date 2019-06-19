@@ -10,6 +10,12 @@ class zcObserverAccessBlocker extends base
               
     public function __construct() 
     {
+        $this->chars_to_remove = array(
+            ' ',
+            "\n",
+            "\r",
+            "\t"
+        );
         if (defined('ACCESSBLOCK_ENABLED') && ACCESSBLOCK_ENABLED == 'true') {
             $this->debug = (ACCESSBLOCK_DEBUG == 'true');
             $this->logfile = DIR_FS_LOGS . '/accesses_blocked_' . date('Y_m') . '.log';
@@ -46,7 +52,7 @@ class zcObserverAccessBlocker extends base
                     if (!$access_blocked) {
                         $ip_country = $ipData->getIpCountry();
                         if ($ip_country !== false && ACCESSBLOCK_BLOCKED_COUNTRIES !== '') {
-                            $blocked_countries = explode(',', str_replace(' ', '', strtoupper(ACCESSBLOCK_BLOCKED_COUNTRIES)));
+                            $blocked_countries = explode(',', str_replace($this->chars_to_remove, '', strtoupper(ACCESSBLOCK_BLOCKED_COUNTRIES)));
                             
                             $access_blocked = in_array($ip_country, $blocked_countries);
                             if ($access_blocked) {
@@ -56,7 +62,7 @@ class zcObserverAccessBlocker extends base
                         
                         $ip_organization = $ipData->getIpOrganization();
                         if ($ip_organization !== false && ACCESSBLOCK_BLOCKED_ORGS !== '') {
-                            $blocked_orgs = explode(',', str_replace(' ', '', ACCESSBLOCK_BLOCKED_ORGS));
+                            $blocked_orgs = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_ORGS));
                             
                             foreach ($blocked_orgs as $next_org) {
                                 if (stripos($ip_organization, $next_org) !== false) {
@@ -107,7 +113,7 @@ class zcObserverAccessBlocker extends base
     {
         $ip_blocked = false;
         if (ACCESSBLOCK_BLOCKED_IPS != '') {
-            $blocked_ips = explode(',', str_replace(' ', '', ACCESSBLOCK_BLOCKED_IPS));
+            $blocked_ips = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_IPS));
             $remote_addr = (string)$remote_addr;
             foreach ($blocked_ips as $ip_address) {
                 if (strpos($remote_addr, $ip_address) === 0) {
@@ -130,7 +136,7 @@ class zcObserverAccessBlocker extends base
                 $email_host_address = $_SESSION['customers_host_address'];
             }
             
-            $blocked_hosts = explode(',', str_replace(' ', '', ACCESSBLOCK_BLOCKED_HOSTS));
+            $blocked_hosts = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_HOSTS));
             $email_host_address = (string)$email_host_address;
             foreach ($blocked_hosts as $current_host) {
                 if (stripos($email_host_address, $current_host) !== false) {
@@ -143,7 +149,7 @@ class zcObserverAccessBlocker extends base
         
         if (ACCESSBLOCK_BLOCKED_EMAILS != '') {
             $email_address = (string)$email_address;
-            $blocked_emails = explode(',', str_replace(' ', '', ACCESSBLOCK_BLOCKED_EMAILS));
+            $blocked_emails = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_EMAILS));
             foreach ($blocked_emails as $current_email) {
                 if (stripos($email_address, $current_email) !== false) {
                     $this->blocked_message .= "Access blocked by email address ($email_address). ";
@@ -160,7 +166,7 @@ class zcObserverAccessBlocker extends base
         $content_blocked = false;
         if (ACCESSBLOCK_BLOCKED_PHRASES != '') {
             $enquiry = (string)$enquiry;
-            $blocked_phrases = explode(',', str_replace(' ', '', ACCESSBLOCK_BLOCKED_PHRASES));
+            $blocked_phrases = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_PHRASES));
             foreach ($blocked_phrases as $current_phrase) {
                 if (stripos($enquiry, $current_phrase) !== false) {
                     $this->blocked_message .= "Access blocked by message content ($current_phrase): $enquiry. ";
@@ -176,7 +182,7 @@ class zcObserverAccessBlocker extends base
     {
         if ($this->debug) {
             $ip_address = (!empty($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : 'not provided';
-            $blocked_session_message = (isset($_SESSION['blocked_message'])) ? $_SESSION['blocked_message'] : '';
+            $blocked_session_message = (isset($_SESSION['blocked_message']) && $_SESSION['blocked_message'] != $this->blocked_message) ? $_SESSION['blocked_message'] : '';
             $message = date('Y-m-d H:i:s') . ": Access blocked on $blocked_page page for IP Address ($ip_address) and/or email ($email_address). " . $blocked_session_message . $this->blocked_message;
             error_log($message . PHP_EOL, 3, $this->logfile);
         }

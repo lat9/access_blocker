@@ -3,8 +3,8 @@
 // Part of the Access Blocker plugin, created by lat9 (https://vinosdefrutastropicales.com)
 // Copyright (c) 2019, Vinos de Frutas Tropicales.
 //
-define('ACCESSBLOCK_CURRENT_VERSION', '1.0.1-beta2');
-define('ACCESSBLOCK_LAST_UPDATE_DATE', '2019-06-14');
+define('ACCESSBLOCK_CURRENT_VERSION', '1.0.1');
+define('ACCESSBLOCK_LAST_UPDATE_DATE', '2019-06-19');
 
 // -----
 // Wait until an admin is logged in before installing or updating ...
@@ -87,6 +87,17 @@ if (!defined('ACCESSBLOCK_VERSION')) {
 // Update the plugin's version and release date (saved as last_modified), if the version has changed.
 //
 if (ACCESSBLOCK_VERSION != ACCESSBLOCK_CURRENT_VERSION) {
+    switch (true) {
+        case version_compare(ACCESSBLOCK_VERSION, '1.0.1', '<'):
+            $db->Execute(
+                "UPDATE " . TABLE_CONFIGURATION . "
+                    SET set_function = 'zen_cfg_textarea('
+                  WHERE configuration_key IN ('ACCESSBLOCK_BLOCKED_ORGS', 'ACCESSBLOCK_BLOCKED_IPS', 'ACCESSBLOCK_BLOCKED_HOSTS', 'ACCESSBLOCK_BLOCKED_EMAILS', 'ACCESSBLOCK_BLOCKED_PHRASES')"
+            );
+        default:                        //- Fall-through from above processing
+            break;
+    }
+    
     $db->Execute(
         "UPDATE " . TABLE_CONFIGURATION . "
             SET configuration_value = '" . ACCESSBLOCK_CURRENT_VERSION . "',
