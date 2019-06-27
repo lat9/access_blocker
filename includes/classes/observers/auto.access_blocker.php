@@ -31,7 +31,37 @@ class zcObserverAccessBlocker extends base
         }
     }
 
-    public function update (&$class, $eventID, $p1, &$p2, &$p3, &$p4, &$p5, &$p6, &$p7) 
+    public function update(&$class, $eventID, $p1, &$p2, &$p3, &$p4, &$p5, &$p6, &$p7) 
+    {
+        switch ($eventID) {
+            case 'NOTIFY_CONTACT_US_CAPTCHA_CHECK':
+                if ($this->isEmailAddressBlocked($_POST['email']) || $this->isContentBlocked($_POST['enquiry']) || $this->isAccessBlocked()) {
+                    $this->logBlockedAccesses('contact_us', $_POST['email']);
+                    zen_redirect(zen_href_link(FILENAME_CONTACT_US, 'action=success', 'SSL'));
+                }
+                break;
+                
+            case 'NOTIFY_CREATE_ACCOUNT_CAPTCHA_CHECK':
+                if ($this->isEmailAddressBlocked($_POST['email_address']) || $this->isAccessBlocked()) {
+                    $GLOBALS['messageStack']->add_session('header', ACCESSBLOCK_CREATE_ACCOUNT_SUBMITTED_FOR_REVIEW, 'success');
+                    $this->logBlockedAccesses('create_account', $_POST['email_address']);
+                    zen_redirect(zen_href_link(FILENAME_SHOPPING_CART));
+                }
+                break;
+
+            case 'NOTIFY_PROCESS_3RD_PARTY_LOGINS':
+                if ($this->isEmailAddressBlocked($_POST['email_address']) || $this->isAccessBlocked()) {
+                    $this->logBlockedAccesses('login', $_POST['email_address']);
+                    $p3 = false;
+                }
+                break;
+                
+            default:
+                break;
+        }
+    }
+    
+    protected function isAccessBlocked()
     {
         if (!isset($_SESSION['access_blocked'])) {
             if (empty($_SERVER['REMOTE_ADDR']) || $_SERVER['REMOTE_ADDR'] == '.') {
@@ -80,33 +110,7 @@ class zcObserverAccessBlocker extends base
                 }
             }
         }
-        
-        switch ($eventID) {
-            case 'NOTIFY_CONTACT_US_CAPTCHA_CHECK':
-                if (isset($_SESSION['access_blocked']) || $this->isEmailAddressBlocked($_POST['email']) || $this->isContentBlocked($_POST['enquiry'])) {
-                    $this->logBlockedAccesses('contact_us', $_POST['email']);
-                    zen_redirect(zen_href_link(FILENAME_CONTACT_US, 'action=success', 'SSL'));
-                }
-                break;
-                
-            case 'NOTIFY_CREATE_ACCOUNT_CAPTCHA_CHECK':
-                if (isset($_SESSION['access_blocked']) || $this->isEmailAddressBlocked($_POST['email_address'])) {
-                    $GLOBALS['messageStack']->add_session('header', ACCESSBLOCK_CREATE_ACCOUNT_SUBMITTED_FOR_REVIEW, 'success');
-                    $this->logBlockedAccesses('create_account', $_POST['email_address']);
-                    zen_redirect(zen_href_link(FILENAME_SHOPPING_CART));
-                }
-                break;
-
-            case 'NOTIFY_PROCESS_3RD_PARTY_LOGINS':
-                if (isset($_SESSION['access_blocked']) || $this->isEmailAddressBlocked($_POST['email_address'])) {
-                    $this->logBlockedAccesses('login', $_POST['email_address']);
-                    $p3 = false;
-                }
-                break;
-                
-            default:
-                break;
-        }
+        return isset($_SESSION['access_blocked']);
     }
     
     protected function isIpBlocked($remote_addr)
