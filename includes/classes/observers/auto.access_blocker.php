@@ -42,7 +42,7 @@ class zcObserverAccessBlocker extends base
                 break;
                 
             case 'NOTIFY_CREATE_ACCOUNT_CAPTCHA_CHECK':
-                if ($this->isEmailAddressBlocked($_POST['email_address']) || $this->isAccessBlocked()) {
+                if ($this->isEmailAddressBlocked($_POST['email_address']) || $this->isCompanyBlocked() || $this->isAccessBlocked()) {
                     $GLOBALS['messageStack']->add_session('header', ACCESSBLOCK_CREATE_ACCOUNT_SUBMITTED_FOR_REVIEW, 'success');
                     $this->logBlockedAccesses('create_account', $_POST['email_address']);
                     zen_redirect(zen_href_link(FILENAME_SHOPPING_CART));
@@ -180,6 +180,23 @@ class zcObserverAccessBlocker extends base
             }
         }
         return $content_blocked;
+    }
+    
+    protected function isCompanyBlocked()
+    {
+        $company_blocked = false;
+        if (isset($_POST['company']) && defined('ACCESSBLOCK_BLOCKED_COMPANIES') && !empty(ACCESSBLOCK_BLOCKED_COMPANIES)) {
+            $blocked_companies = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_COMPANIES));
+            $create_account_company = strtolower($_POST['company']);
+            foreach ($blocked_companies as $current_company) {
+                if (stripos($create_account_company, $current_company) !== false) {
+                    $this->blocked_message .= "Access blocked by entered company ($current_company): $create_account_company. ";
+                    $company_blocked = true;
+                    break;
+                }
+            }
+        }
+        return $company_blocked;
     }
     
     protected function logBlockedAccesses($blocked_page, $email_address)

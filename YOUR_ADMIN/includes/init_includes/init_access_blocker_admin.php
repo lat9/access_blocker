@@ -3,8 +3,8 @@
 // Part of the Access Blocker plugin, created by lat9 (https://vinosdefrutastropicales.com)
 // Copyright (c) 2019, Vinos de Frutas Tropicales.
 //
-define('ACCESSBLOCK_CURRENT_VERSION', '1.0.2-beta1');
-define('ACCESSBLOCK_LAST_UPDATE_DATE', '2019-06-27');
+define('ACCESSBLOCK_CURRENT_VERSION', '1.1.0');
+define('ACCESSBLOCK_LAST_UPDATE_DATE', '2019-07-26');
 
 // -----
 // Wait until an admin is logged in before installing or updating ...
@@ -93,6 +93,13 @@ if (ACCESSBLOCK_VERSION != ACCESSBLOCK_CURRENT_VERSION) {
                 "UPDATE " . TABLE_CONFIGURATION . "
                     SET set_function = 'zen_cfg_textarea('
                   WHERE configuration_key IN ('ACCESSBLOCK_BLOCKED_ORGS', 'ACCESSBLOCK_BLOCKED_IPS', 'ACCESSBLOCK_BLOCKED_HOSTS', 'ACCESSBLOCK_BLOCKED_EMAILS', 'ACCESSBLOCK_BLOCKED_PHRASES')"
+            );
+        case version_compare(ACCESSBLOCK_VERSION, '1.1.0', '<'):
+            $db->Execute(
+                "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                    (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
+                 VALUES
+                    ('Block by: Create-account Company', 'ACCESSBLOCK_BLOCKED_COMPANIES', '', 'Enter, using a comma-separated list, any <em>Company</em> entries to be blocked from creating an account.  If the company value entered on the <code>create_account</code> page <em>contains</em> any of the strings entered here, the account-creation will be blocked.', $cgi, now(), 70, NULL, 'zen_cfg_textarea(')"
             );
         default:                        //- Fall-through from above processing
             break;
