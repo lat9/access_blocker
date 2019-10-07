@@ -64,7 +64,7 @@ a[target=_blank] { text-decoration: underline; }
 
 <body>
   <h1>Access Blocker <span class="smaller">for Zen Cart v1.5.5 (and later)</span></h1>
-  <h3>Version 1.1.0 by lat9</h3>
+  <h3>Version 1.1.1 by lat9</h3>
   <h3>Copyright (C) 2019, Vinos de Frutas Tropicales</h3>
   <p>Released under the General Public License (see the file named <code>license.txt</code> in the plugin's distribution for full details). This script is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</p>
   <p>Current Support Thread at Zen Cart Forums: <a href="https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread" target="_blank">https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread</a></p>
@@ -194,6 +194,13 @@ a[target=_blank] { text-decoration: underline; }
             
             <div id="changes">
               <ul>
+                <li>v1.1.1, 2019-10-07:<ul>
+                    <li>BUGFIX: Correct PHP notices when submitted variables are missing.</li>
+                    <li>The following files were changed:<ol>
+                        <li>/includes/classes/observers/auto.access_blocker.php</li>
+                        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+                    </ol></li>
+                </ul></li>
                 <li>v1.1.0, 2019-06-26:<ul>
                     <li>CHANGE: Reduce calls to ipdata.co, when an email-address and/or content-specific blocks have been configured.</li>
                     <li>CHANGE: Enable create-account requests to be blocked by company.</li>

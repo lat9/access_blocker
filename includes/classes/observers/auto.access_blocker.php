@@ -35,6 +35,15 @@ class zcObserverAccessBlocker extends base
     {
         switch ($eventID) {
             case 'NOTIFY_CONTACT_US_CAPTCHA_CHECK':
+                // -----
+                // If either the 'email' or 'enquiry' posted via the form is empty, perform a "quick return"
+                // (to prevent PHP notices generated for those 'missing' values); the base header_php.php will
+                // kick the request back.
+                //
+                if (empty($_POST['email']) || empty($_POST['enquiry'])) {
+                    return;
+                }
+                
                 if ($this->isEmailAddressBlocked($_POST['email']) || $this->isContentBlocked($_POST['enquiry']) || $this->isAccessBlocked()) {
                     $this->logBlockedAccesses('contact_us', $_POST['email']);
                     zen_redirect(zen_href_link(FILENAME_CONTACT_US, 'action=success', 'SSL'));
@@ -42,6 +51,14 @@ class zcObserverAccessBlocker extends base
                 break;
                 
             case 'NOTIFY_CREATE_ACCOUNT_CAPTCHA_CHECK':
+                // -----
+                // If the email address wasn't submitted as part of the create-account form, perform a "quick
+                // return"; the page's header processing will disallow the access (prevents unwanted PHP notices.
+                //
+                if (empty($_POST['email_address'])) {
+                    return;
+                }
+                
                 if ($this->isEmailAddressBlocked($_POST['email_address']) || $this->isCompanyBlocked() || $this->isAccessBlocked()) {
                     $GLOBALS['messageStack']->add_session('header', ACCESSBLOCK_CREATE_ACCOUNT_SUBMITTED_FOR_REVIEW, 'success');
                     $this->logBlockedAccesses('create_account', $_POST['email_address']);
@@ -50,6 +67,15 @@ class zcObserverAccessBlocker extends base
                 break;
 
             case 'NOTIFY_PROCESS_3RD_PARTY_LOGINS':
+                // -----
+                // If the login page's header processing has already determined that the access is not
+                // authorized, perform a "quick return" (to prevent PHP notices generated for possibly
+                // missing values and let that header processing perform its normal processing.
+                //
+                if ($p3 === false) {
+                    return;
+                }
+                
                 if ($this->isEmailAddressBlocked($_POST['email_address']) || $this->isAccessBlocked()) {
                     $this->logBlockedAccesses('login', $_POST['email_address']);
                     $p3 = false;
@@ -185,7 +211,7 @@ class zcObserverAccessBlocker extends base
     protected function isCompanyBlocked()
     {
         $company_blocked = false;
-        if (isset($_POST['company']) && defined('ACCESSBLOCK_BLOCKED_COMPANIES') && !empty(ACCESSBLOCK_BLOCKED_COMPANIES)) {
+        if (!empty($_POST['company']) && defined('ACCESSBLOCK_BLOCKED_COMPANIES') && !empty(ACCESSBLOCK_BLOCKED_COMPANIES)) {
             $blocked_companies = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_COMPANIES));
             $create_account_company = strtolower($_POST['company']);
             foreach ($blocked_companies as $current_company) {
