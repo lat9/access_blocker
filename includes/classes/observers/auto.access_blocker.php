@@ -1,7 +1,7 @@
 <?php
 // -----
 // Part of the "Access Blocker" plugin by lat9 (https://vinosdefrutastropicales.com)
-// Copyright (C) 2019, Vinos de Frutas Tropicales.  All rights reserved.
+// Copyright (C) 2019-2021, Vinos de Frutas Tropicales.  All rights reserved.
 //
 class zcObserverAccessBlocker extends base 
 {
@@ -26,6 +26,7 @@ class zcObserverAccessBlocker extends base
                     'NOTIFY_CONTACT_US_CAPTCHA_CHECK',
                     'NOTIFY_CREATE_ACCOUNT_CAPTCHA_CHECK',
                     'NOTIFY_PROCESS_3RD_PARTY_LOGINS',
+                    'NOTIFY_OPC_GUEST_CHECKOUT_OVERRIDE',
                 )
             );
         }
@@ -82,6 +83,16 @@ class zcObserverAccessBlocker extends base
                 }
                 break;
                 
+            // -----
+            // If the current IP-based access is blocked, don't offer the OPC's guest-checkout.
+            //
+            case 'NOTIFY_OPC_GUEST_CHECKOUT_OVERRIDE':
+                if ($this->isAccessBlocked()) {
+                    $p2 = false;
+                    $this->logBlockedAccesses('guest_checkout', 'n/a');
+                }
+                break;
+                
             default:
                 break;
         }
@@ -99,7 +110,9 @@ class zcObserverAccessBlocker extends base
             } else {
                 $access_blocked = false;
                 if (ACCESSBLOCK_IPDATA_API_KEY != '') {
-                    require DIR_WS_CLASSES . 'ipData.php';
+                    if (!class_exists('ipData')) {
+                        require DIR_WS_CLASSES . 'ipData.php';
+                    }
                     $ipData = new ipData(ACCESSBLOCK_IPDATA_API_KEY, $_SERVER['REMOTE_ADDR']);
                     
                     $access_blocked = $ipData->isIpThreat();

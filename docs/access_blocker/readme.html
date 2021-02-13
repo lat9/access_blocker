@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="icon" href="../vinos_favicon.ico" type="image/x-icon" />
-<link href="http://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 <title>Access Blocker</title>
 
 <style type="text/css">
@@ -52,10 +52,10 @@ th { background-color: #eee; }
 a[target=_blank] { text-decoration: underline; }
 -->
 </style>
-<link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" />
-<script src="../jquery-1.7.1.min.js" type="text/javascript"></script> 
-<script src="../jquery.easytabs.min.js" type="text/javascript"></script>
-<script type="text/javascript">
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" />
+<script src="../jquery-1.7.1.min.js"></script> 
+<script src="../jquery.easytabs.min.js"></script>
+<script>
   $(document).ready( function() {
       $('#tab-container').easytabs();
   });
@@ -64,8 +64,8 @@ a[target=_blank] { text-decoration: underline; }
 
 <body>
   <h1>Access Blocker <span class="smaller">for Zen Cart v1.5.5 (and later)</span></h1>
-  <h3>Version 1.1.1 by lat9</h3>
-  <h3>Copyright (C) 2019, Vinos de Frutas Tropicales</h3>
+  <h3>Version 1.2.0 by lat9</h3>
+  <h3>Copyright (C) 2019-2021, Vinos de Frutas Tropicales</h3>
   <p>Released under the General Public License (see the file named <code>license.txt</code> in the plugin's distribution for full details). This script is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</p>
   <p>Current Support Thread at Zen Cart Forums: <a href="https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread" target="_blank">https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread</a></p>
 
@@ -78,11 +78,12 @@ a[target=_blank] { text-decoration: underline; }
     </ul>
     <div class="panel-container">
       <div id="overview">
-        <p>This <em>drop-in</em> plugin provides your store with admin-level controls to block (or limit) actions provided by the <code>contact_us</code>, <code>create_account</code> and <code>login</code> pages.  If access is blocked via configuration (see the <em>Configuration</em> tab for details):</p>
+        <p>This <em>drop-in</em> plugin provides your store with admin-level controls to block (or limit) actions provided by the <code>contact_us</code>, <code>create_account</code> and <code>login</code> pages and/or limit access to the guest-checkout provided by <a href="https://vinosdefrutastropicales.com/index.php?main_page=product_info&cPath=2_7&products_id=69" target="_blank">One-Page Checkout</a>.  If access is blocked via configuration (see the <em>Configuration</em> tab for details):</p>
         <ol>
           <li><b>contact_us</b>.  The message <em>appears</em> to be sent, but no email is actually generated.</li>
           <li><b>create_account</b>. An account <em>appears</em> to have been created, but it's not (and no emails are sent).  The message (defined in the plugin's message-file) is displayed to give the illusion of an account having been created.</li>
           <li><b>login</b>.  The login is denied, with the &quot;standard&quot; <em>Error: Sorry, there is no match for that email address and/or password.</em> message being displayed.</li>
+          <li><b>guest-checkout</b>.  Guest checkout is disabled, so it is not offered as a choice on the <code>login</code> page.  Any active guest checkout on a blocked IP address reverts to the 3-page version.</li>
         </ol>
         <p>Some features of the plugin require that you request a <em>free</em> API key from the <a href="https://ipdata.co" target="_blank">ipdata.co</a> service.  That service identifies &quot;known&quot; <em>threats</em>, based on a supplied IP address &mdash; <em>Access Blocker</em> makes that request based on the IP address used to access your site.</p>
       </div>
@@ -194,6 +195,13 @@ a[target=_blank] { text-decoration: underline; }
             
             <div id="changes">
               <ul>
+                <li>v1.2.0, 2021-02-13:<ul>
+                    <li>CHANGE: Disable <em>One-Page Checkout</em>'s guest-checkout if the access is blocked via IP.</li>
+                    <li>The following files were changed:<ol>
+                        <li>/includes/classes/observers/auto.access_blocker.php</li>
+                        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+                    </ol></li>
+                </ul></li>
                 <li>v1.1.1, 2019-10-07:<ul>
                     <li>BUGFIX: Correct PHP notices when submitted variables are missing.</li>
                     <li>The following files were changed:<ol>
