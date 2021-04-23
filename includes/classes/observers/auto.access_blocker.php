@@ -27,6 +27,7 @@ class zcObserverAccessBlocker extends base
                     'NOTIFY_CREATE_ACCOUNT_CAPTCHA_CHECK',
                     'NOTIFY_PROCESS_3RD_PARTY_LOGINS',
                     'NOTIFY_OPC_GUEST_CHECKOUT_OVERRIDE',
+                    'NOTIFY_ASK_A_QUESTION_CAPTCHA_CHECK',
                 )
             );
         }
@@ -35,6 +36,27 @@ class zcObserverAccessBlocker extends base
     public function update(&$class, $eventID, $p1, &$p2, &$p3, &$p4, &$p5, &$p6, &$p7) 
     {
         switch ($eventID) {
+            case 'NOTIFY_ASK_A_QUESTION_CAPTCHA_CHECK':
+                // -----
+                // If either the 'email' or 'enquiry' posted via the form is empty, perform a "quick return"
+                // (to prevent PHP notices generated for those 'missing' values); the base header_php.php will
+                // kick the request back.
+                //
+                if (empty($_POST['email']) || empty($_POST['enquiry'])) {
+                    return;
+                }
+
+                // -----
+                // If either the email-address, content or the base access is blocked, redirect back to the page
+                // with a pseudo-success action, noting that the page's header_php.php has already determined that
+                // the submitted 'pid' value is valid.
+                //
+                if ($this->isEmailAddressBlocked($_POST['email']) || $this->isContentBlocked($_POST['enquiry']) || $this->isAccessBlocked()) {
+                    $this->logBlockedAccesses('ask_a_question', $_POST['email']);
+                    zen_redirect(zen_href_link(FILENAME_ASK_A_QUESTION, 'action=success&pid=' . (int)$_GET['pid'], 'SSL'));
+                }
+                break;
+
             case 'NOTIFY_CONTACT_US_CAPTCHA_CHECK':
                 // -----
                 // If either the 'email' or 'enquiry' posted via the form is empty, perform a "quick return"
@@ -44,17 +66,17 @@ class zcObserverAccessBlocker extends base
                 if (empty($_POST['email']) || empty($_POST['enquiry'])) {
                     return;
                 }
-                
+
                 if ($this->isEmailAddressBlocked($_POST['email']) || $this->isContentBlocked($_POST['enquiry']) || $this->isAccessBlocked()) {
                     $this->logBlockedAccesses('contact_us', $_POST['email']);
                     zen_redirect(zen_href_link(FILENAME_CONTACT_US, 'action=success', 'SSL'));
                 }
                 break;
-                
+
             case 'NOTIFY_CREATE_ACCOUNT_CAPTCHA_CHECK':
                 // -----
                 // If the email address wasn't submitted as part of the create-account form, perform a "quick
-                // return"; the page's header processing will disallow the access (prevents unwanted PHP notices.
+                // return"; the page's header processing will disallow the access (prevents unwanted PHP notices).
                 //
                 if (empty($_POST['email_address'])) {
                     return;
@@ -82,7 +104,7 @@ class zcObserverAccessBlocker extends base
                     $p3 = false;
                 }
                 break;
-                
+
             // -----
             // If the current IP-based access is blocked, don't offer the OPC's guest-checkout.
             //
@@ -92,7 +114,7 @@ class zcObserverAccessBlocker extends base
                     $this->logBlockedAccesses('guest_checkout', 'n/a');
                 }
                 break;
-                
+
             default:
                 break;
         }
@@ -114,10 +136,10 @@ class zcObserverAccessBlocker extends base
                         require DIR_WS_CLASSES . 'ipData.php';
                     }
                     $ipData = new ipData(ACCESSBLOCK_IPDATA_API_KEY, $_SERVER['REMOTE_ADDR']);
-                    
+
                     $access_blocked = $ipData->isIpThreat();
                     $this->blocked_message = 'IP address is identified as a threat by ipdata.co. ';
-                    
+
                     if (!$access_blocked) {
                         $ip_country = $ipData->getIpCountry();
                         if ($ip_country !== false && ACCESSBLOCK_BLOCKED_COUNTRIES !== '') {
@@ -128,7 +150,7 @@ class zcObserverAccessBlocker extends base
                                 $this->blocked_message = "Access blocked by IP-based country ($ip_country). ";
                             }
                         }
-                        
+
                         $ip_organization = $ipData->getIpOrganization();
                         if ($ip_organization !== false && ACCESSBLOCK_BLOCKED_ORGS !== '') {
                             $blocked_orgs = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_ORGS));
@@ -151,7 +173,7 @@ class zcObserverAccessBlocker extends base
         }
         return isset($_SESSION['access_blocked']);
     }
-    
+
     protected function isIpBlocked($remote_addr)
     {
         $ip_blocked = false;
@@ -168,7 +190,7 @@ class zcObserverAccessBlocker extends base
         }
         return $ip_blocked;
     }
-    
+
     protected function isEmailAddressBlocked($email_address)
     {
         $email_blocked = false;
@@ -178,7 +200,7 @@ class zcObserverAccessBlocker extends base
             } else {
                 $email_host_address = $_SESSION['customers_host_address'];
             }
-            
+
             $blocked_hosts = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_HOSTS));
             $email_host_address = (string)$email_host_address;
             foreach ($blocked_hosts as $current_host) {
@@ -189,7 +211,7 @@ class zcObserverAccessBlocker extends base
                 }
             }
         }
-        
+
         if (ACCESSBLOCK_BLOCKED_EMAILS != '') {
             $email_address = (string)$email_address;
             $blocked_emails = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_EMAILS));
@@ -203,7 +225,7 @@ class zcObserverAccessBlocker extends base
         }
         return $email_blocked;
     }
-    
+
     protected function isContentBlocked($enquiry)
     {
         $content_blocked = false;
@@ -220,7 +242,7 @@ class zcObserverAccessBlocker extends base
         }
         return $content_blocked;
     }
-    
+
     protected function isCompanyBlocked()
     {
         $company_blocked = false;
@@ -237,7 +259,7 @@ class zcObserverAccessBlocker extends base
         }
         return $company_blocked;
     }
-    
+
     protected function logBlockedAccesses($blocked_page, $email_address)
     {
         if ($this->debug) {
