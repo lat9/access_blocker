@@ -64,7 +64,7 @@ a[target=_blank] { text-decoration: underline; }
 
 <body>
   <h1>Access Blocker <span class="smaller">for Zen Cart v1.5.5 (and later)</span></h1>
-  <h3>Version 1.3.0 by lat9</h3>
+  <h3>Version 1.4.0 by lat9</h3>
   <h3>Copyright (C) 2019-2021, Vinos de Frutas Tropicales</h3>
   <p>Released under the General Public License (see the file named <code>license.txt</code> in the plugin's distribution for full details). This script is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</p>
   <p>Current Support Thread at Zen Cart Forums: <a href="https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread" target="_blank">https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread</a></p>
@@ -140,15 +140,19 @@ a[target=_blank] { text-decoration: underline; }
             </tr>
             <tr>
                 <td>Block by: Country</td>
-                <td>Enter, using a comma-separated list, the 2-character ISO country-codes for any countries to be blocked.  All IP addresses originating in these countries will be blocked.<br /><br /><b>Note:</b> This setting does not apply if the <em>ipData Service: API Key</em> is empty.</td>
+                <td>Enter, using a comma-separated list, the 2-character ISO country-codes for any countries to be blocked.  All IP addresses originating in these countries will be blocked.<br><br><b>Note:</b> This setting does not apply if the <em>ipData Service: API Key</em> is empty.</td>
             </tr>
             <tr>
                 <td>Block by: Organization</td>
-                <td>Enter, using a comma-separated list, any &quot;organizations&quot; (based on the <code>ipData</code> response) to be blocked.  If the organization associated with an IP address <em>contains</em> any of the strings entered here, the access will be blocked.<br /><br /><b>Note:</b> This setting does not apply if the <em>ipData Service: API Key</em> is empty.</td>
+                <td>Enter, using a comma-separated list, any &quot;organizations&quot; (based on the <code>ipData</code> response) to be blocked.  If the organization associated with an IP address <em>contains</em> any of the strings entered here, the access will be blocked.<br><br><b>Note:</b> This setting does not apply if the <em>ipData Service: API Key</em> is empty.</td>
             </tr>
             <tr>
                 <td>Block by: IP Address</td>
                 <td>Enter, using a comma-separated list, any <em>specific</em> IP addresses to block.  If you enter only the upper segments of an IP address, e.g. <code>192.168.1.</code>, all matching IP addresses, e.g. <code>192.168.1.0-192.168.1.255</code> will be blocked.</td>
+            </tr>
+            <tr>
+                <td>IP Address: Whitelist</td>
+                <td>Enter, using a comma-separated list, any <em>specific</em> IP addresses to allow <em>unconditionally</em>.  If you enter only the upper segments of an IP address, e.g. <code>192.168.1.</code>, all matching IP addresses, e.g. <code>192.168.1.0-192.168.1.255</code> will be blocked.<br><br>If an IP address matches a whitelisted entry, that IP address is never blocked &mdash; no <code>ipdata.co</code> request will be made.</td>
             </tr>
             <tr>
                 <td>Block by: Host Address</td>
@@ -156,7 +160,11 @@ a[target=_blank] { text-decoration: underline; }
             </tr>
             <tr>
                 <td>Block by: Email Address</td>
-                <td>Enter, using a comma-separated list, any &quot;email addresses&quot; to block.  If the email-address entered <em>contains</em> any of the strings entered here, the access will be blocked.<br /><br />You can block accesses for a specific email address (<code>joe@example.com</code>) or for an entire email domain (<code>@example.com</code>).</td>
+                <td>Enter, using a comma-separated list, any &quot;email addresses&quot; to block.  If the email-address entered <em>contains</em> any of the strings entered here, the access will be blocked.<br><br>You can block accesses for a specific email address (<code>joe@example.com</code>) or for an entire email domain (<code>@example.com</code>).</td>
+            </tr>
+            <tr>
+                <td>Email Address: Whitelist</td>
+                <td>Enter, using a comma-separated list, any &quot;email addresses&quot; to allow <em>unconditionally</em>.  If the email-address entered <em>contains</em> any of the strings entered here, the access will be blocked.<br><br>You can block accesses for a specific email address (<code>joe@example.com</code>) or for an entire email domain (<code>@example.com</code>).<br><br>If an email-address matches a whitelisted entry, that email-address is never blocked &mdash; no <code>ipdata.co</code> request will be made.</td>
             </tr>
            <tr>
                 <td>Block by: Message Keywords</td>
@@ -196,6 +204,14 @@ a[target=_blank] { text-decoration: underline; }
             
             <div id="changes">
               <ul>
+                <li>v1.4.0, 2021-08-06:<ul>
+                    <li>CHANGE: Globalize the $ipData instance so that it can be reused by other site-specific customizations.</li>
+                    <li>CHANGE: Adding IP- and email-address whitelist configuration settings.</li>
+                    <li>The following files were changed:<ol>
+                        <li>/includes/classes/observers/auto.access_blocker.php</li>
+                        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+                    </ol></li>
+                </ul></li>
                 <li>v1.3.0, 2021-04-23:<ul>
                     <li>CHANGE: Add the zc157+ <em>Ask a Question</em> page to the plugin's 'protection'.</li>
                     <li>The following files were changed:<ol>

@@ -3,8 +3,8 @@
 // Part of the Access Blocker plugin, created by lat9 (https://vinosdefrutastropicales.com)
 // Copyright (c) 2019-2021, Vinos de Frutas Tropicales.
 //
-define('ACCESSBLOCK_CURRENT_VERSION', '1.3.0');
-define('ACCESSBLOCK_LAST_UPDATE_DATE', '2021-04-23');
+define('ACCESSBLOCK_CURRENT_VERSION', '1.4.0');
+define('ACCESSBLOCK_LAST_UPDATE_DATE', '2021-08-06');
 
 // -----
 // Wait until an admin is logged in before installing or updating ...
@@ -94,14 +94,23 @@ if (ACCESSBLOCK_VERSION != ACCESSBLOCK_CURRENT_VERSION) {
                     SET set_function = 'zen_cfg_textarea('
                   WHERE configuration_key IN ('ACCESSBLOCK_BLOCKED_ORGS', 'ACCESSBLOCK_BLOCKED_IPS', 'ACCESSBLOCK_BLOCKED_HOSTS', 'ACCESSBLOCK_BLOCKED_EMAILS', 'ACCESSBLOCK_BLOCKED_PHRASES')"
             );
-        case version_compare(ACCESSBLOCK_VERSION, '1.1.0', '<'):
+        case version_compare(ACCESSBLOCK_VERSION, '1.1.0', '<'):    //- Fall-through from above processing
             $db->Execute(
                 "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
                     (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
                  VALUES
                     ('Block by: Create-account Company', 'ACCESSBLOCK_BLOCKED_COMPANIES', '', 'Enter, using a comma-separated list, any <em>Company</em> entries to be blocked from creating an account.  If the company value entered on the <code>create_account</code> page <em>contains</em> any of the strings entered here, the account-creation will be blocked.', $cgi, now(), 70, NULL, 'zen_cfg_textarea(')"
             );
-        default:                        //- Fall-through from above processing
+        case version_compare(ACCESSBLOCK_VERSION, '1.4.0', '<'):    //- Fall-through from above processing
+            $db->Execute(
+                "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                    (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
+                 VALUES
+                    ('IP Address: Whitelist', 'ACCESSBLOCK_WHITELISTED_IPS', '', 'Enter, using a comma-separated list, any <em>specific</em> IP addresses to <em>unconditionally enable</em>.  If you enter only the upper segments of an IP address, e.g. <code>192.168.1.</code>, all matching IP addresses, e.g. <code>192.168.1.0-192.168.1.255</code> will be not be blocked, even if they are identified as a thread by ipdata.co.', $cgi, now(), 31, NULL, 'zen_cfg_textarea('),
+
+                    ('Email Address: Whitelist', 'ACCESSBLOCK_WHITELISTED_EMAILS', '', 'Enter, using a comma-separated list, any &quot;email addresses&quot; to <em>unconditionally enable</em>.  If the email-address entered <em>contains</em> any of the strings entered here, the access will be <em>not be</em> blocked.<br><br>You can enable accesses for a specific email address (<code>joe@example.com</code>) or for an entire email domain (<code>@example.com</code>).', $cgi, now(), 51, NULL, 'zen_cfg_textarea(')"
+            );
+        default:                                                    //- Fall-through from above processing
             break;
     }
 
