@@ -49,6 +49,11 @@ class ipData
         }
     }
 
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
     public function getIpOrganization()
     {
         return ($this->response === false) ? false : $this->response->organisation;

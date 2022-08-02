@@ -3,7 +3,7 @@
 // Part of the Access Blocker plugin, created by lat9 (https://vinosdefrutastropicales.com)
 // Copyright (c) 2019-2022, Vinos de Frutas Tropicales.
 //
-define('ACCESSBLOCK_CURRENT_VERSION', '1.5.0-beta2');
+define('ACCESSBLOCK_CURRENT_VERSION', '1.5.0-beta3');
 define('ACCESSBLOCK_LAST_UPDATE_DATE', '2022-08-02');
 
 // -----
@@ -52,19 +52,19 @@ if (!defined('ACCESSBLOCK_VERSION')) {
          VALUES
             ('Plugin Version', 'ACCESSBLOCK_VERSION', '0.0.0', 'The <em>Access Blocker</em> installed version.', $cgi, now(), 1, NULL, 'trim('),
 
-            ('Enable Access Blocker?', 'ACCESSBLOCK_ENABLED', 'false', 'When enabled, the plugin blocks unwanted accesses to your store\'s <code>contact_us</code>, <code>create_account</code> and <code>login</code> pages, based on &quot;threats&quot; identified by the ipdata.co service and/or additional elements identified below.<br /><br />Default: <b>false</b>', $cgi, now(), 5, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
+            ('Enable Access Blocker?', 'ACCESSBLOCK_ENABLED', 'false', 'When enabled, the plugin blocks unwanted accesses to your store\'s <code>contact_us</code>, <code>create_account</code> and <code>login</code> pages, based on &quot;threats&quot; identified by the ipdata.co service and/or additional elements identified below.<br><br>Default: <b>false</b>', $cgi, now(), 5, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
 
             ('ipData Service: API Key', 'ACCESSBLOCK_IPDATA_API_KEY', '', 'Enter the API key you received from the <a href=\"https://ipdata.co/registration.html\" target=\"_blank\" rel=\"noreferrer\">ipData</a> service.  Leave the setting empty if no ipdata.co information should be used.<br />', $cgi, now(), 10, NULL, NULL),
 
             ('Block by: Country', 'ACCESSBLOCK_BLOCKED_COUNTRIES', '', 'Enter, using a comma-separated list, the 2-character ISO country-codes for any countries to be blocked.  All IP addresses originating in these countries will be blocked.<br /><br /><b>Note:</b> This setting does not apply if the <em>ipData Service: API Key</em> is not set.', $cgi, now(), 15, NULL, NULL),
 
-            ('Block by: Organization', 'ACCESSBLOCK_BLOCKED_ORGS', '', 'Enter, using a comma-separated list, any &quot;organizations&quot; (based on the <code>ipData</code> response) to be blocked.  If the organization associated with an IP address <em>contains</em> any of the strings entered here, the access will be blocked.<br /><br /><b>Note:</b> This setting does not apply if the <em>ipData Service: API Key</em> is not set.', $cgi, now(), 20, NULL, NULL),
+            ('Block by: Organization', 'ACCESSBLOCK_BLOCKED_ORGS', '', 'Enter, using a comma-separated list, any &quot;organizations&quot; (based on the <code>ipData</code> response) to be blocked.  If the organization associated with an IP address <em>contains</em> any of the strings entered here, the access will be blocked.<br><br><b>Note:</b> This setting does not apply if the <em>ipData Service: API Key</em> is not set.', $cgi, now(), 20, NULL, NULL),
 
             ('Block by: IP Address', 'ACCESSBLOCK_BLOCKED_IPS', '', 'Enter, using a comma-separated list, any <em>specific</em> IP addresses to block.  If you enter only the upper segments of an IP address, e.g. <code>192.168.1.</code>, all matching IP addresses, e.g. <code>192.168.1.0-192.168.1.255</code> will be blocked.', $cgi, now(), 30, NULL, NULL),
 
             ('Block by: Host Address', 'ACCESSBLOCK_BLOCKED_HOSTS', '', 'Enter, using a comma-separated list, any &quot;host addresses&quot; to block.  If the host-address that originates the IP address <em>contains</em> any of the strings entered here, the access will be blocked.', $cgi, now(), 40, NULL, NULL),
 
-            ('Block by: Email Address', 'ACCESSBLOCK_BLOCKED_EMAILS', '', 'Enter, using a comma-separated list, any &quot;email addresses&quot; to block.  If the email-address entered <em>contains</em> any of the strings entered here, the access will be blocked.<br /><br />You can block accesses for a specific email address (<code>joe@example.com</code>) or for an entire email domain (<code>@example.com</code>).', $cgi, now(), 50, NULL, NULL),
+            ('Block by: Email Address', 'ACCESSBLOCK_BLOCKED_EMAILS', '', 'Enter, using a comma-separated list, any &quot;email addresses&quot; to block.  If the email-address entered <em>contains</em> any of the strings entered here, the access will be blocked.<br><br>You can block accesses for a specific email address (<code>joe@example.com</code>) or for an entire email domain (<code>@example.com</code>).', $cgi, now(), 50, NULL, NULL),
 
             ('Block by: Message Keywords', 'ACCESSBLOCK_BLOCKED_PHRASES', '', 'Enter, using a comma-separated list, any words in a <code>contact_us</code> message that should result in a block.  If the message contains any of the words entered here, the associated <em>contact-us</em> email will not be sent.', $cgi, now(), 60, NULL, NULL),
 
@@ -124,7 +124,9 @@ if (ACCESSBLOCK_VERSION !== ACCESSBLOCK_CURRENT_VERSION) {
                 "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
                     (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
                  VALUES
-                    ('Use ipdata.co EU Endpoint?', 'ACCESSBLOCK_USE_EU_ENDPOINT', 'false', '<br>Indicate whether (true) or not the ipdata.co EU endpoint should be used for threat requests.  If set to <em>true</em>, a dedicated EU endpoint is used to ensure that the end user data you send us stays in the EU.<br><br>Default: <b>false</b>', $cgi, now(), 11, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
+                    ('Use ipdata.co EU Endpoint?', 'ACCESSBLOCK_USE_EU_ENDPOINT', 'false', '<br>Indicate whether or not the ipdata.co EU endpoint should be used for threat requests.  If set to <em>true</em>, a dedicated EU endpoint is used to ensure that the end user data you send us stays in the EU.<br><br>Default: <b>false</b>', $cgi, now(), 11, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
+
+                    ('Totally restrict access on threats?', 'ACCESSBLOCK_RESTRICT_THREAT_ACCESS', 'false', '<br>Indicate whether or not <em>Access Blocker</em> should <b>totally</b> restrict access by forcing an &quot;HTTP 410 (Gone)&quot; if a threat is detected.<br><br>Default: <b>false</b>', $cgi, now(), 12, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
             );
 
         default:                                                    //- Fall-through from above processing

@@ -142,7 +142,11 @@ a[target=_blank] { text-decoration: underline; }
             </tr>
             <tr>
                 <td>Use ipdata.co EU Endpoint?</td>
-                <td>Indicate whether (true) or not the ipdata.co EU endpoint should be used for threat requests. If set to <em>true</em>, a dedicated EU endpoint is used to ensure that the end user data you send us stays in the EU. Added for v1.5.0 of the plugin; defaults to <b>false</b>.</td>
+                <td>Indicate whether or not the ipdata.co EU endpoint should be used for threat requests. If set to <em>true</em>, a dedicated EU endpoint is used to ensure that the end user data you send us stays in the EU. Added for v1.5.0 of the plugin; defaults to <b>false</b>.</td>
+            </tr>
+            <tr>
+                <td>Totally restrict access on threats?</td>
+                <td>Indicate whether (true) or not <em>Access Blocker</em> should <b>totally</b> restrict access by forcing an &quot;HTTP 410 (Gone)&quot; if a threat is detected.. Added for v1.5.0 of the plugin; defaults to <b>false</b>.<br><br>See below for additional details.</td>
             </tr>
             <tr>
                 <td>Block by: Country</td>
@@ -185,6 +189,14 @@ a[target=_blank] { text-decoration: underline; }
                 <td>When enabled, the plugin creates a monthly log, <code>/logs/accesses_blocked_YYYY_mm.log</code>, of the accesses denied by the plugin.</td>
             </tr>
         </table>
+
+        <h2>When Access is &quot;Totally&quot; Restricted</h2>
+        <p>An additional configuration setting &mdash; <b>Totally restrict access on threats?</b> &mdash; was added for <em>Access Blocker</em> v1.5.0. When this setting's value is &quot;true&quot;, <em>Access Blocker</em> will:</p>
+        <ol>
+            <li>Check the incoming request on an initial access to the site to see if the associated current IP address, country or organization is blocked by configuration or if ipdata.co indicates that the IP address is a threat.</li>
+            <li>Issue an <em>HTTP 410 (Gone)</em> <strong>for all subsequent accesses</strong> in a session once a threat has been detected. A customer's session-access can be restored by adding their IP Address to the <b>Email Address: Whitelist</b> list.</li>
+        </ol>
+        <p><b>Note:</b> The first response returned by <code>ipdata.co</code> is now stored in the session to ensure that only one request per session is initiated.</p>
       </div>
 
       <div id="version">
@@ -213,9 +225,11 @@ a[target=_blank] { text-decoration: underline; }
               <ul>
                 <li>v1.5.0-beta2, 2022-08-02:<ul>
                     <li>CHANGE: Use <code>zen_cfg_read_only</code> for the plugin's configured version number.</li>
-                    <li>CHANGE: Add configuration setting to enable the use of the ipdata.co EU endpoint, so customer IP information 'stays in' the EU.</li>
+                    <li>CHANGE: Added a configuration setting to enable the use of the ipdata.co EU endpoint, so customer IP information 'stays in' the EU.</li>
+                    <li>CHANGE: Added a configuration setting through which, once a threat is detected, all subsequent accesses to the site result in an &quot;HTTP 410 (Gone)&quot; response.</li>
                     <li>The following files were changed or <span class="added">added</span>:<ol>
                         <li>/includes/classes/ipData.php</li>
+                        <li>/includes/classes/observers/auto.access_blocker.php</li>
                         <li><span class="added">/YOUR_ADMIN/includes/functions/extra_functions/zen_cfg_read_only.php</span></li>
                         <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
                     </ol></li>

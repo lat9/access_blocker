@@ -1,7 +1,9 @@
 <?php
 // -----
 // Part of the "Access Blocker" plugin by lat9 (https://vinosdefrutastropicales.com)
-// Copyright (C) 2019-2021, Vinos de Frutas Tropicales.  All rights reserved.
+// Copyright (C) 2019-2022, Vinos de Frutas Tropicales.  All rights reserved.
+//
+// Last updated: v1.5.0
 //
 if (!defined('ACCESSBLOCK_WHITELISTED_IPS')) {
     define('ACCESSBLOCK_WHITELISTED_IPS', '');
@@ -9,37 +11,49 @@ if (!defined('ACCESSBLOCK_WHITELISTED_IPS')) {
 if (!defined('ACCESSBLOCK_WHITELISTED_EMAILS')) {
     define('ACCESSBLOCK_WHITELISTED_EMAILS', '');
 }
-class zcObserverAccessBlocker extends base 
+if (!defined('ACCESSBLOCK_RESTRICT_THREAT_ACCESS')) {
+    define('ACCESSBLOCK_RESTRICT_THREAT_ACCESS', 'false');
+}
+
+class zcObserverAccessBlocker extends base
 {
-    protected $additional_ips = array(),
-              $blocked_message = '';
-              
+    protected
+        $additional_ips = [],
+        $blocked_message = '',
+        $restrict_threat_access;
+
     public function __construct() 
     {
-        $this->chars_to_remove = array(
+        $this->chars_to_remove = [
             ' ',
             "\n",
             "\r",
             "\t"
-        );
-        if (defined('ACCESSBLOCK_ENABLED') && ACCESSBLOCK_ENABLED == 'true') {
-            $this->debug = (ACCESSBLOCK_DEBUG == 'true');
+        ];
+        if (defined('ACCESSBLOCK_ENABLED') && ACCESSBLOCK_ENABLED === 'true') {
+            $this->debug = (ACCESSBLOCK_DEBUG === 'true');
             $this->logfile = DIR_FS_LOGS . '/accesses_blocked_' . date('Y_m') . '.log';
-            
+
+            $this->restrict_threat_access = (ACCESSBLOCK_RESTRICT_THREAT_ACCESS === 'true');
+            if ($this->restrict_threat_access === true && empty($_SESSION['access_blocked'])) {
+                $this->isAccessBlocked();
+            }
+            $this->denyIfThreatAccessRestricted();
+
             $this->attach(
                 $this, 
-                array(
+                [
                     'NOTIFY_CONTACT_US_CAPTCHA_CHECK',
                     'NOTIFY_CREATE_ACCOUNT_CAPTCHA_CHECK',
                     'NOTIFY_PROCESS_3RD_PARTY_LOGINS',
                     'NOTIFY_OPC_GUEST_CHECKOUT_OVERRIDE',
                     'NOTIFY_ASK_A_QUESTION_CAPTCHA_CHECK',
-                )
+                ]
             );
         }
     }
 
-    public function update(&$class, $eventID, $p1, &$p2, &$p3, &$p4, &$p5, &$p6, &$p7) 
+    public function update(&$class, $eventID, $p1, &$p2, &$p3, &$p4, &$p5, &$p6, &$p7)
     {
         switch ($eventID) {
             case 'NOTIFY_ASK_A_QUESTION_CAPTCHA_CHECK':
@@ -59,6 +73,8 @@ class zcObserverAccessBlocker extends base
                 //
                 if (!$this->isEmailWhitelisted($_POST['email']) && ($this->isEmailAddressBlocked($_POST['email']) || $this->isContentBlocked($_POST['enquiry']) || $this->isAccessBlocked())) {
                     $this->logBlockedAccesses('ask_a_question', $_POST['email']);
+                    $this->denyIfThreatAccessRestricted();
+
                     zen_redirect(zen_href_link(FILENAME_ASK_A_QUESTION, 'action=success&pid=' . (int)$_GET['pid'], 'SSL'));
                 }
                 break;
@@ -75,6 +91,8 @@ class zcObserverAccessBlocker extends base
 
                 if (!$this->isEmailWhitelisted($_POST['email']) && ($this->isEmailAddressBlocked($_POST['email']) || $this->isContentBlocked($_POST['enquiry']) || $this->isAccessBlocked())) {
                     $this->logBlockedAccesses('contact_us', $_POST['email']);
+                    $this->denyIfThreatAccessRestricted();
+
                     zen_redirect(zen_href_link(FILENAME_CONTACT_US, 'action=success', 'SSL'));
                 }
                 break;
@@ -89,8 +107,10 @@ class zcObserverAccessBlocker extends base
                 }
 
                 if (!$this->isEmailWhitelisted($_POST['email_address']) && ($this->isEmailAddressBlocked($_POST['email_address']) || $this->isCompanyBlocked() || $this->isAccessBlocked())) {
-                    $GLOBALS['messageStack']->add_session('header', ACCESSBLOCK_CREATE_ACCOUNT_SUBMITTED_FOR_REVIEW, 'success');
                     $this->logBlockedAccesses('create_account', $_POST['email_address']);
+                    $this->denyIfThreatAccessRestricted();
+
+                    $GLOBALS['messageStack']->add_session('header', ACCESSBLOCK_CREATE_ACCOUNT_SUBMITTED_FOR_REVIEW, 'success');
                     zen_redirect(zen_href_link(FILENAME_SHOPPING_CART));
                 }
                 break;
@@ -107,6 +127,7 @@ class zcObserverAccessBlocker extends base
 
                 if (!$this->isEmailWhitelisted($_POST['email_address']) && ($this->isEmailAddressBlocked($_POST['email_address']) || $this->isAccessBlocked())) {
                     $this->logBlockedAccesses('login', $_POST['email_address']);
+                    $this->denyIfThreatAccessRestricted();
                     $p3 = false;
                 }
                 break;
@@ -118,6 +139,7 @@ class zcObserverAccessBlocker extends base
                 if ($this->isAccessBlocked()) {
                     $p2 = false;
                     $this->logBlockedAccesses('guest_checkout', 'n/a');
+                    $this->denyIfThreatAccessRestricted();
                 }
                 break;
 
@@ -130,69 +152,100 @@ class zcObserverAccessBlocker extends base
     {
         global $ipData;
 
-        if (empty($_SERVER['REMOTE_ADDR']) || $_SERVER['REMOTE_ADDR'] == '.') {
+        if (empty($_SERVER['REMOTE_ADDR']) || $_SERVER['REMOTE_ADDR'] === '.') {
             $_SESSION['blocked_message'] = 'Remote address not set. ';
             $_SESSION['access_blocked'] = true;
 
         } elseif ($this->isIpWhitelisted($_SERVER['REMOTE_ADDR'])) {
             unset($_SESSION['access_blocked']);
 
+        } elseif (!empty($_SESSION['customer_email_address']) && $this->isEmailWhitelisted($_SESSION['customer_email_address'])) {
+            unset($_SESSION['access_blocked']);
+
         } elseif ($this->isIpBlocked($_SERVER['REMOTE_ADDR'])) {
             $_SESSION['blocked_message'] = $this->blocked_message;
             $_SESSION['access_blocked'] = true;
 
-        } elseif (!isset($_SESSION['access_blocked'])) {
+        } elseif (empty($_SESSION['access_blocked'])) {
             $access_blocked = false;
-            if (ACCESSBLOCK_IPDATA_API_KEY != '') {
-                if (!class_exists('ipData')) {
-                    require DIR_WS_CLASSES . 'ipData.php';
+            if (ACCESSBLOCK_IPDATA_API_KEY !== '') {
+                if (!isset($_SESSION['ipData'])) {
+                    if (!class_exists('ipData')) {
+                        require DIR_WS_CLASSES . 'ipData.php';
+                    }
+                    $ipData = new ipData(ACCESSBLOCK_IPDATA_API_KEY, $_SERVER['REMOTE_ADDR']);
+                    $response = $ipData->getResponse();
+                    unset($response->endpoints);
+                    $_SESSION['ipData'] = $response;
                 }
-                $ipData = new ipData(ACCESSBLOCK_IPDATA_API_KEY, $_SERVER['REMOTE_ADDR']);
 
-                $access_blocked = $ipData->isIpThreat();
+                $access_blocked = $this->isIpThreat();
                 $this->blocked_message = 'IP address is identified as a threat by ipdata.co. ';
-                if (!$access_blocked) {
-                    $ip_country = $ipData->getIpCountry();
-                    if ($ip_country !== false && ACCESSBLOCK_BLOCKED_COUNTRIES !== '') {
-                        $blocked_countries = explode(',', str_replace($this->chars_to_remove, '', strtoupper(ACCESSBLOCK_BLOCKED_COUNTRIES)));
-                        $access_blocked = in_array($ip_country, $blocked_countries);
-                        if ($access_blocked) {
-                            $this->blocked_message = "Access blocked by IP-based country ($ip_country). ";
+                if ($access_blocked === false) {
+                    if (ACCESSBLOCK_BLOCKED_COUNTRIES !== '') {
+                        $ip_country = $this->getIpCountry();
+                        if ($ip_country !== false) {
+                            $blocked_countries = explode(',', str_replace($this->chars_to_remove, '', strtoupper(ACCESSBLOCK_BLOCKED_COUNTRIES)));
+                            $access_blocked = in_array($ip_country, $blocked_countries);
+                            if ($access_blocked === true) {
+                                $this->blocked_message = "Access blocked by IP-based country ($ip_country). ";
+                            }
                         }
                     }
 
-                    $ip_organization = $ipData->getIpOrganization();
-                    if ($ip_organization !== false && ACCESSBLOCK_BLOCKED_ORGS !== '') {
-                        $blocked_orgs = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_ORGS));
-
-                        foreach ($blocked_orgs as $next_org) {
-                            if (stripos($ip_organization, $next_org) !== false) {
-                                $this->blocked_message .= "Access blocked by IP-based organization ($next_org). ";
-                                $access_blocked = true;
-                                break;
+                    if ($access_blocked === false && ACCESSBLOCK_BLOCKED_ORGS !== '') {
+                        $ip_organization = $this->getIpOrganization();
+                        if ($ip_organization !== false) {
+                            $blocked_orgs = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_ORGS));
+                            foreach ($blocked_orgs as $next_org) {
+                                if (stripos($ip_organization, $next_org) !== false) {
+                                    $this->blocked_message .= "Access blocked by IP-based organization ($next_org). ";
+                                    $access_blocked = true;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
-            if ($access_blocked) {
+            if ($access_blocked === true) {
                 $_SESSION['blocked_message'] = $this->blocked_message;
                 $_SESSION['access_blocked'] = true;
             }
         }
-        return isset($_SESSION['access_blocked']);
+        return !empty($_SESSION['access_blocked']);
+    }
+
+    protected function isIpThreat()
+    {
+        $is_ip_threat = false;
+        if (!empty($_SESSION['ipData']->threat)) {
+            $is_ip_threat = $_SESSION['ipData']->threat->is_threat;
+        }
+        return $is_ip_threat;
+    }
+
+    protected function getIpCountry()
+    {
+        return (empty($_SESSION['ipData']->country_code)) ? false : $_SESSION['ipData']->country_code;
+    }
+
+    protected function getIpOrganization()
+    {
+        return (empty($_SESSION['ipData']->organisation)) ? false : $_SESSION['ipData']->organisation;
     }
 
     protected function isIpBlocked($remote_addr)
     {
         $ip_blocked = false;
-        if (ACCESSBLOCK_BLOCKED_IPS != '') {
+        if (ACCESSBLOCK_BLOCKED_IPS !== '') {
             $blocked_ips = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_IPS));
             $remote_addr = (string)$remote_addr;
             foreach ($blocked_ips as $ip_address) {
                 if (strpos($remote_addr, $ip_address) === 0) {
                     $this->blocked_message .= "Remote address is blocked by configuration ($ip_address). ";
                     $ip_blocked = true;
+                    $_SESSION['access_blocked'] = true;
                     break;
                 }
             }
@@ -203,12 +256,13 @@ class zcObserverAccessBlocker extends base
     protected function isIpWhitelisted($remote_addr)
     {
         $ip_whitelisted = false;
-        if (ACCESSBLOCK_WHITELISTED_IPS != '') {
+        if (ACCESSBLOCK_WHITELISTED_IPS !== '') {
             $whitelisted_ips = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_WHITELISTED_IPS));
             $remote_addr = (string)$remote_addr;
             foreach ($whitelisted_ips as $ip_address) {
                 if (strpos($remote_addr, $ip_address) === 0) {
                     $ip_whitelisted = true;
+                    unset($_SESSION['access_blocked']);
                     break;
                 }
             }
@@ -219,7 +273,7 @@ class zcObserverAccessBlocker extends base
     protected function isEmailAddressBlocked($email_address)
     {
         $email_blocked = false;
-        if (ACCESSBLOCK_BLOCKED_HOSTS != '') {
+        if (ACCESSBLOCK_BLOCKED_HOSTS !== '') {
             if (empty($_SESSION['customers_host_address'])) {
                 $email_host_address = (SESSION_IP_TO_HOST_ADDRESS == 'true') ? @gethostbyaddr($_SERVER['REMOTE_ADDR']) : '';
             } else {
@@ -237,7 +291,7 @@ class zcObserverAccessBlocker extends base
             }
         }
 
-        if (ACCESSBLOCK_BLOCKED_EMAILS != '') {
+        if ($email_blocked === false && ACCESSBLOCK_BLOCKED_EMAILS !== '') {
             $email_address = (string)$email_address;
             $blocked_emails = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_EMAILS));
             foreach ($blocked_emails as $current_email) {
@@ -248,18 +302,24 @@ class zcObserverAccessBlocker extends base
                 }
             }
         }
+
+        if ($email_blocked === true) {
+            $_SESSION['access_blocked'] = true;
+        }
+
         return $email_blocked;
     }
 
     protected function isEmailWhitelisted($email_address)
     {
         $is_whitelisted = false;
-        if (ACCESSBLOCK_WHITELISTED_EMAILS != '') {
+        if (ACCESSBLOCK_WHITELISTED_EMAILS !== '') {
             $email_address = (string)$email_address;
             $whitelisted_emails = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_WHITELISTED_EMAILS));
             foreach ($whitelisted_emails as $current_email) {
                 if (stripos($email_address, $current_email) !== false) {
                     $is_whitelisted = true;
+                    unset($_SESSION['access_blocked']);
                     break;
                 }
             }
@@ -270,13 +330,14 @@ class zcObserverAccessBlocker extends base
     protected function isContentBlocked($enquiry)
     {
         $content_blocked = false;
-        if (ACCESSBLOCK_BLOCKED_PHRASES != '') {
+        if (ACCESSBLOCK_BLOCKED_PHRASES !== '') {
             $enquiry = (string)$enquiry;
             $blocked_phrases = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_PHRASES));
             foreach ($blocked_phrases as $current_phrase) {
                 if (stripos($enquiry, $current_phrase) !== false) {
                     $this->blocked_message .= "Access blocked by message content ($current_phrase): $enquiry. ";
                     $content_blocked = true;
+                    $_SESSION['access_blocked'] = true;
                     break;
                 }
             }
@@ -294,6 +355,7 @@ class zcObserverAccessBlocker extends base
                 if (stripos($create_account_company, $current_company) !== false) {
                     $this->blocked_message .= "Access blocked by entered company ($current_company): $create_account_company. ";
                     $company_blocked = true;
+                    $_SESSION['access_blocked'] = true;
                     break;
                 }
             }
@@ -301,9 +363,17 @@ class zcObserverAccessBlocker extends base
         return $company_blocked;
     }
 
+    protected function denyIfThreatAccessRestricted()
+    {
+        if ($this->restrict_threat_access === true && !empty($_SESSION['access_blocked'])) {
+            header('HTTP/1.0 410 Gone');
+            zen_exit();
+        }
+    }
+
     protected function logBlockedAccesses($blocked_page, $email_address)
     {
-        if ($this->debug) {
+        if ($this->debug === true) {
             $ip_address = (!empty($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : 'not provided';
             $blocked_session_message = (isset($_SESSION['blocked_message']) && $_SESSION['blocked_message'] != $this->blocked_message) ? $_SESSION['blocked_message'] : '';
             $message = date('Y-m-d H:i:s') . ": Access blocked on $blocked_page page for IP Address ($ip_address) and/or email ($email_address). " . $blocked_session_message . $this->blocked_message;
