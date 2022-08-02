@@ -141,6 +141,10 @@ a[target=_blank] { text-decoration: underline; }
                 <td>Enter the API key you received from the <a href="https://ipdata.co/registration.html" target="_blank" rel="noreferrer">ipData</a> service.  Leave the setting empty if no ipdata.co information should be used.</td>
             </tr>
             <tr>
+                <td>Use ipdata.co EU Endpoint?</td>
+                <td>Indicate whether (true) or not the ipdata.co EU endpoint should be used for threat requests. If set to <em>true</em>, a dedicated EU endpoint is used to ensure that the end user data you send us stays in the EU. Added for v1.5.0 of the plugin; defaults to <b>false</b>.</td>
+            </tr>
+            <tr>
                 <td>Block by: Country</td>
                 <td>Enter, using a comma-separated list, the 2-character ISO country-codes for any countries to be blocked.  All IP addresses originating in these countries will be blocked.<br><br><b>Note:</b> This setting does not apply if the <em>ipData Service: API Key</em> is empty.</td>
             </tr>
@@ -207,9 +211,11 @@ a[target=_blank] { text-decoration: underline; }
 
             <div id="changes">
               <ul>
-                <li>v1.5.0-beta1, 2022-08-02:<ul>
+                <li>v1.5.0-beta2, 2022-08-02:<ul>
                     <li>CHANGE: Use <code>zen_cfg_read_only</code> for the plugin's configured version number.</li>
+                    <li>CHANGE: Add configuration setting to enable the use of the ipdata.co EU endpoint, so customer IP information 'stays in' the EU.</li>
                     <li>The following files were changed or <span class="added">added</span>:<ol>
+                        <li>/includes/classes/ipData.php</li>
                         <li><span class="added">/YOUR_ADMIN/includes/functions/extra_functions/zen_cfg_read_only.php</span></li>
                         <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
                     </ol></li>

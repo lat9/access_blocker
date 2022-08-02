@@ -3,7 +3,7 @@
 // Part of the Access Blocker plugin, created by lat9 (https://vinosdefrutastropicales.com)
 // Copyright (c) 2019-2022, Vinos de Frutas Tropicales.
 //
-define('ACCESSBLOCK_CURRENT_VERSION', '1.5.0-beta1');
+define('ACCESSBLOCK_CURRENT_VERSION', '1.5.0-beta2');
 define('ACCESSBLOCK_LAST_UPDATE_DATE', '2022-08-02');
 
 // -----
@@ -94,6 +94,7 @@ if (ACCESSBLOCK_VERSION !== ACCESSBLOCK_CURRENT_VERSION) {
                     SET set_function = 'zen_cfg_textarea('
                   WHERE configuration_key IN ('ACCESSBLOCK_BLOCKED_ORGS', 'ACCESSBLOCK_BLOCKED_IPS', 'ACCESSBLOCK_BLOCKED_HOSTS', 'ACCESSBLOCK_BLOCKED_EMAILS', 'ACCESSBLOCK_BLOCKED_PHRASES')"
             );
+
         case version_compare(ACCESSBLOCK_VERSION, '1.1.0', '<'):    //- Fall-through from above processing
             $db->Execute(
                 "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
@@ -101,6 +102,7 @@ if (ACCESSBLOCK_VERSION !== ACCESSBLOCK_CURRENT_VERSION) {
                  VALUES
                     ('Block by: Create-account Company', 'ACCESSBLOCK_BLOCKED_COMPANIES', '', 'Enter, using a comma-separated list, any <em>Company</em> entries to be blocked from creating an account.  If the company value entered on the <code>create_account</code> page <em>contains</em> any of the strings entered here, the account-creation will be blocked.', $cgi, now(), 70, NULL, 'zen_cfg_textarea(')"
             );
+
         case version_compare(ACCESSBLOCK_VERSION, '1.4.0', '<'):    //- Fall-through from above processing
             $db->Execute(
                 "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
@@ -110,6 +112,7 @@ if (ACCESSBLOCK_VERSION !== ACCESSBLOCK_CURRENT_VERSION) {
 
                     ('Email Address: Whitelist', 'ACCESSBLOCK_WHITELISTED_EMAILS', '', 'Enter, using a comma-separated list, any &quot;email addresses&quot; to <em>unconditionally enable</em>.  If the email-address entered <em>contains</em> any of the strings entered here, the access will be <em>not be</em> blocked.<br><br>You can enable accesses for a specific email address (<code>joe@example.com</code>) or for an entire email domain (<code>@example.com</code>).', $cgi, now(), 51, NULL, 'zen_cfg_textarea(')"
             );
+
         case version_compare(ACCESSBLOCK_VERSION, '1.5.0', '<'):    //- Fall-through from above processing
             $db->Execute(
             "UPDATE " . TABLE_CONFIGURATION . "
@@ -117,6 +120,13 @@ if (ACCESSBLOCK_VERSION !== ACCESSBLOCK_CURRENT_VERSION) {
               WHERE configuration_key = 'ACCESSBLOCK_VERSION'
               LIMIT 1"
             );
+            $db->Execute(
+                "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                    (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
+                 VALUES
+                    ('Use ipdata.co EU Endpoint?', 'ACCESSBLOCK_USE_EU_ENDPOINT', 'false', '<br>Indicate whether (true) or not the ipdata.co EU endpoint should be used for threat requests.  If set to <em>true</em>, a dedicated EU endpoint is used to ensure that the end user data you send us stays in the EU.<br><br>Default: <b>false</b>', $cgi, now(), 11, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
+            );
+
         default:                                                    //- Fall-through from above processing
             break;
     }
