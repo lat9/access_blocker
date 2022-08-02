@@ -1,10 +1,10 @@
 <?php
 // -----
 // Part of the Access Blocker plugin, created by lat9 (https://vinosdefrutastropicales.com)
-// Copyright (c) 2019-2021, Vinos de Frutas Tropicales.
+// Copyright (c) 2019-2022, Vinos de Frutas Tropicales.
 //
-define('ACCESSBLOCK_CURRENT_VERSION', '1.4.0');
-define('ACCESSBLOCK_LAST_UPDATE_DATE', '2021-08-06');
+define('ACCESSBLOCK_CURRENT_VERSION', '1.5.0-beta1');
+define('ACCESSBLOCK_LAST_UPDATE_DATE', '2022-08-02');
 
 // -----
 // Wait until an admin is logged in before installing or updating ...
@@ -86,7 +86,7 @@ if (!defined('ACCESSBLOCK_VERSION')) {
 // -----
 // Update the plugin's version and release date (saved as last_modified), if the version has changed.
 //
-if (ACCESSBLOCK_VERSION != ACCESSBLOCK_CURRENT_VERSION) {
+if (ACCESSBLOCK_VERSION !== ACCESSBLOCK_CURRENT_VERSION) {
     switch (true) {
         case version_compare(ACCESSBLOCK_VERSION, '1.0.1', '<'):
             $db->Execute(
@@ -110,6 +110,13 @@ if (ACCESSBLOCK_VERSION != ACCESSBLOCK_CURRENT_VERSION) {
 
                     ('Email Address: Whitelist', 'ACCESSBLOCK_WHITELISTED_EMAILS', '', 'Enter, using a comma-separated list, any &quot;email addresses&quot; to <em>unconditionally enable</em>.  If the email-address entered <em>contains</em> any of the strings entered here, the access will be <em>not be</em> blocked.<br><br>You can enable accesses for a specific email address (<code>joe@example.com</code>) or for an entire email domain (<code>@example.com</code>).', $cgi, now(), 51, NULL, 'zen_cfg_textarea(')"
             );
+        case version_compare(ACCESSBLOCK_VERSION, '1.5.0', '<'):    //- Fall-through from above processing
+            $db->Execute(
+            "UPDATE " . TABLE_CONFIGURATION . "
+                SET set_function = 'zen_cfg_read_only('
+              WHERE configuration_key = 'ACCESSBLOCK_VERSION'
+              LIMIT 1"
+            );
         default:                                                    //- Fall-through from above processing
             break;
     }
@@ -121,7 +128,7 @@ if (ACCESSBLOCK_VERSION != ACCESSBLOCK_CURRENT_VERSION) {
           WHERE configuration_key = 'ACCESSBLOCK_VERSION'
           LIMIT 1"
     );
-    if (ACCESSBLOCK_VERSION != '0.0.0') {
+    if (ACCESSBLOCK_VERSION !== '0.0.0') {
         $messageStack->add(sprintf(ACCESSBLOCK_UPDATE_SUCCESS, ACCESSBLOCK_VERSION, ACCESSBLOCK_CURRENT_VERSION), 'success');
     }
 }

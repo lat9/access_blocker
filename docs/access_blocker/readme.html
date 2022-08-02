@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 <title>Access Blocker</title>
 
-<style type="text/css">
+<style>
 <!--
 a, a:active, a:visited { color: #006666; text-decoration: none; }
 a:hover { color:#00CC99; text-decoration: underline; }
@@ -30,6 +30,7 @@ img.wide { width: 95%; float: none; margin: 0 2.5%; }
 textarea { width: 100%; }
 .corefile { color: red; }
 .template { color: green; }
+.added { color: blue; }
 .forward { float: right; }
 .back { float: back; }
 .clearBoth { clear: both; }
@@ -52,7 +53,7 @@ th { background-color: #eee; }
 a[target=_blank] { text-decoration: underline; }
 -->
 </style>
-<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" />
 <script src="../jquery-1.7.1.min.js"></script> 
 <script src="../jquery.easytabs.min.js"></script>
 <script>
@@ -64,8 +65,8 @@ a[target=_blank] { text-decoration: underline; }
 
 <body>
   <h1>Access Blocker <span class="smaller">for Zen Cart v1.5.5 (and later)</span></h1>
-  <h3>Version 1.4.0 by lat9</h3>
-  <h3>Copyright (C) 2019-2021, Vinos de Frutas Tropicales</h3>
+  <h3>Version 1.5.0 by lat9</h3>
+  <h3>Copyright (C) 2019-2022, Vinos de Frutas Tropicales</h3>
   <p>Released under the General Public License (see the file named <code>license.txt</code> in the plugin's distribution for full details). This script is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</p>
   <p>Current Support Thread at Zen Cart Forums: <a href="https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread" target="_blank">https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread</a></p>
 
@@ -88,7 +89,7 @@ a[target=_blank] { text-decoration: underline; }
         </ol>
         <p>Some features of the plugin require that you request a <em>free</em> API key from the <a href="https://ipdata.co" target="_blank">ipdata.co</a> service.  That service identifies &quot;known&quot; <em>threats</em>, based on a supplied IP address &mdash; <em>Access Blocker</em> makes that request based on the IP address used to access your site.</p>
       </div>
-      
+
       <div id="installation">
         <p>This section identifies the procedure you'll use to install/update or remove the plugin for your Zen Cart.</p>
 
@@ -105,6 +106,7 @@ a[target=_blank] { text-decoration: underline; }
                 <li>/includes/classes/observers/auto.access_blocker.php</li>
                 <li>/includes/languages/english/extra_definitions/access_blocker_messages.php</li>
                 <li>/YOUR_ADMIN/includes/auto_loaders/config.access_blocker_admin.php</li>
+                <li>/YOUR_ADMIN/includes/functions/extra_functions/zen_cfg_read_only.php <span class="smaller">(Added in v1.5.0)</span></li>
                 <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
                 <li>/YOUR_ADMIN/includes/languages/english/extra_definitions/access_blocker_admin_names.php</li>
               </ol>
@@ -114,11 +116,11 @@ a[target=_blank] { text-decoration: underline; }
             <div id="remove">
               <p>First, delete the plugin's files that were copied to your Zen Cart installation's file-system. Then use your admin's <em>Tools-&gt;Run SQL Patches</em> to run the file <code class="no-pad">/docs/access_blocker/uninstall/access_blocker_uninstall.sql</code>.</p>
             </div>
-            
+
           </div>
         </div>
       </div>
-      
+
       <div id="configuration">
         <p>Once you've installed <em>Access Blocker</em>, you'll see an additional option in your admin's <em>Configuration</em> menu &mdash; <b>Access Blocker</b> &mdash; with the following available settings:</p>
         <table>
@@ -180,7 +182,7 @@ a[target=_blank] { text-decoration: underline; }
             </tr>
         </table>
       </div>
-      
+
       <div id="version">
         <p>This section identifies the files added by this plugin as well as the plugin's change history.</p>
 
@@ -197,13 +199,21 @@ a[target=_blank] { text-decoration: underline; }
                 <li>/includes/classes/observers/auto.access_blocker.php</li>
                 <li>/includes/languages/english/extra_definitions/access_blocker_messages.php</li>
                 <li>/YOUR_ADMIN/includes/auto_loaders/config.access_blocker_admin.php</li>
+                <li>/YOUR_ADMIN/includes/functions/extra_functions/zen_cfg_read_only.php <span class="smaller">(Added in v1.5.0)</span></li>
                 <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
                 <li>/YOUR_ADMIN/includes/languages/english/extra_definitions/access_blocker_admin_names.php</li>
               </ol>
             </div>
-            
+
             <div id="changes">
               <ul>
+                <li>v1.5.0-beta1, 2022-08-02:<ul>
+                    <li>CHANGE: Use <code>zen_cfg_read_only</code> for the plugin's configured version number.</li>
+                    <li>The following files were changed or <span class="added">added</span>:<ol>
+                        <li><span class="added">/YOUR_ADMIN/includes/functions/extra_functions/zen_cfg_read_only.php</span></li>
+                        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+                    </ol></li>
+                </ul></li>
                 <li>v1.4.0, 2021-08-06:<ul>
                     <li>CHANGE: Adding IP- and email-address whitelist configuration settings.</li>
                     <li>The following files were changed:<ol>
@@ -260,9 +270,9 @@ a[target=_blank] { text-decoration: underline; }
     </div>
   </div>
 
-  <script type="text/javascript">
+  <script>
     $('#outer-container, #inner-container2, #inner-container3').easytabs();
-    
+
     $( '.side-link' ).click( function() {
         window.location.hash = $(this).attr( 'href' );
         location.reload();
