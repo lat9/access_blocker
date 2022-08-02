@@ -4,7 +4,21 @@ require 'includes/application_top.php';
 $blocked_ips = explode(',', str_replace(' ', '', ACCESSBLOCK_BLOCKED_IPS));
 $blocked_ips = array_unique($blocked_ips);
 
-$blocked_accesses = file(DIR_FS_LOGS . '/accesses_blocked_2020_02.log');
+if (empty($_GET['suffix'])) {
+    echo 'Please supply the desired suffix.<br>';
+    require DIR_WS_INCLUDES . 'application_bottom.php';
+    die();
+}
+
+// should be in the format YYYY_mm
+$logfile_name = DIR_FS_LOGS . '/accesses_blocked_' . $_GET['suffix'] . '.log';
+if (!is_file($logfile_name)) {
+    echo 'The specified file was not found.';
+    require DIR_WS_INCLUDES . 'application_bottom.php';
+    die();
+}
+
+$blocked_accesses = file($logfile_name);
 $ips_handled = array();
 foreach ($blocked_accesses as $current) {
     // -----
