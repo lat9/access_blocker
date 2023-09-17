@@ -1,15 +1,15 @@
 <?php
 // -----
 // Part of the Access Blocker plugin, created by lat9 (https://vinosdefrutastropicales.com)
-// Copyright (c) 2019-2022, Vinos de Frutas Tropicales.
+// Copyright (c) 2019-2023, Vinos de Frutas Tropicales.
 //
-define('ACCESSBLOCK_CURRENT_VERSION', '1.5.0');
-define('ACCESSBLOCK_LAST_UPDATE_DATE', '2022-08-02');
+define('ACCESSBLOCK_CURRENT_VERSION', '1.5.1-beta1');
+define('ACCESSBLOCK_LAST_UPDATE_DATE', '2023-09-17');
 
 // -----
 // Wait until an admin is logged in before installing or updating ...
 //
-if (!isset($_SESSION['admin_id'])) {
+if (!isset($_SESSION['admin_id']) || (defined('ACCESSBLOCK_VERSION') && ACCESSBLOCK_VERSION === ACCESSBLOCK_CURRENT_VERSION)) {
     return;
 }
 
@@ -31,7 +31,7 @@ if ($configuration->EOF) {
          VALUES 
             ('$configurationGroupTitle', '$configurationGroupTitle', '1', '1');"
     );
-    $cgi = $db->Insert_ID(); 
+    $cgi = $db->Insert_ID();
     $db->Execute(
         "UPDATE " . TABLE_CONFIGURATION_GROUP . " 
             SET sort_order = $cgi 
@@ -52,9 +52,9 @@ if (!defined('ACCESSBLOCK_VERSION')) {
          VALUES
             ('Plugin Version', 'ACCESSBLOCK_VERSION', '0.0.0', 'The <em>Access Blocker</em> installed version.', $cgi, now(), 1, NULL, 'trim('),
 
-            ('Enable Access Blocker?', 'ACCESSBLOCK_ENABLED', 'false', 'When enabled, the plugin blocks unwanted accesses to your store\'s <code>contact_us</code>, <code>create_account</code> and <code>login</code> pages, based on &quot;threats&quot; identified by the ipdata.co service and/or additional elements identified below.<br><br>Default: <b>false</b>', $cgi, now(), 5, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
+            ('Enable Access Blocker?', 'ACCESSBLOCK_ENABLED', 'false', 'When enabled, the plugin blocks unwanted accesses to your store\'s <code>contact_us</code>, <code>create_account</code> and <code>login</code> pages, based on &quot;threats&quot; identified by the ipdata.co service and/or additional elements identified below.<br><br>Default: <b>false</b>', $cgi, now(), 5, NULL, 'zen_cfg_select_option([\'true\', \'false\'],'),
 
-            ('ipData Service: API Key', 'ACCESSBLOCK_IPDATA_API_KEY', '', 'Enter the API key you received from the <a href=\"https://ipdata.co/registration.html\" target=\"_blank\" rel=\"noreferrer\">ipData</a> service.  Leave the setting empty if no ipdata.co information should be used.<br />', $cgi, now(), 10, NULL, NULL),
+            ('ipData Service: API Key', 'ACCESSBLOCK_IPDATA_API_KEY', '', 'Enter the API key you received from the <a href=\"https://ipdata.co/registration.html\" target=\"_blank\" rel=\"noreferrer\">ipData</a> service.  Leave the setting empty if no ipdata.co information should be used.<br>', $cgi, now(), 10, NULL, NULL),
 
             ('Block by: Country', 'ACCESSBLOCK_BLOCKED_COUNTRIES', '', 'Enter, using a comma-separated list, the 2-character ISO country-codes for any countries to be blocked.  All IP addresses originating in these countries will be blocked.<br /><br /><b>Note:</b> This setting does not apply if the <em>ipData Service: API Key</em> is not set.', $cgi, now(), 15, NULL, NULL),
 
@@ -68,7 +68,7 @@ if (!defined('ACCESSBLOCK_VERSION')) {
 
             ('Block by: Message Keywords', 'ACCESSBLOCK_BLOCKED_PHRASES', '', 'Enter, using a comma-separated list, any words in a <code>contact_us</code> message that should result in a block.  If the message contains any of the words entered here, the associated <em>contact-us</em> email will not be sent.', $cgi, now(), 60, NULL, NULL),
 
-            ('Enable Debug?', 'ACCESSBLOCK_DEBUG', 'false', 'When enabled, the plugin creates a monthly log, <code>/logs/accesses_blocked_YYYY_mm.log</code>, of the accesses denied by the plugin.', $cgi, now(), 499, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
+            ('Enable Debug?', 'ACCESSBLOCK_DEBUG', 'false', 'When enabled, the plugin creates a monthly log, <code>/logs/accesses_blocked_YYYY_mm.log</code>, of the accesses denied by the plugin.', $cgi, now(), 499, NULL, 'zen_cfg_select_option([\'true\', \'false\'],')"
     );
 
     // -----
@@ -124,9 +124,9 @@ if (ACCESSBLOCK_VERSION !== ACCESSBLOCK_CURRENT_VERSION) {
                 "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
                     (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
                  VALUES
-                    ('Use ipdata.co EU Endpoint?', 'ACCESSBLOCK_USE_EU_ENDPOINT', 'false', '<br>Indicate whether or not the ipdata.co EU endpoint should be used for threat requests.  If set to <em>true</em>, a dedicated EU endpoint is used to ensure that the end user data you send us stays in the EU.<br><br>Default: <b>false</b>', $cgi, now(), 11, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),'),
+                    ('Use ipdata.co EU Endpoint?', 'ACCESSBLOCK_USE_EU_ENDPOINT', 'false', '<br>Indicate whether or not the ipdata.co EU endpoint should be used for threat requests.  If set to <em>true</em>, a dedicated EU endpoint is used to ensure that the end user data you send us stays in the EU.<br><br>Default: <b>false</b>', $cgi, now(), 11, NULL, 'zen_cfg_select_option([\'true\', \'false\'],'),
 
-                    ('Totally restrict access on threats?', 'ACCESSBLOCK_RESTRICT_THREAT_ACCESS', 'false', '<br>Indicate whether or not <em>Access Blocker</em> should <b>totally</b> restrict access by forcing an &quot;HTTP 410 (Gone)&quot; if a threat is detected.<br><br>Default: <b>false</b>', $cgi, now(), 12, NULL, 'zen_cfg_select_option(array(\'true\', \'false\'),')"
+                    ('Totally restrict access on threats?', 'ACCESSBLOCK_RESTRICT_THREAT_ACCESS', 'false', '<br>Indicate whether or not <em>Access Blocker</em> should <b>totally</b> restrict access by forcing an &quot;HTTP 410 (Gone)&quot; if a threat is detected.<br><br>Default: <b>false</b>', $cgi, now(), 12, NULL, 'zen_cfg_select_option([\'true\', \'false\'],')"
             );
 
         default:                                                    //- Fall-through from above processing

@@ -2,13 +2,12 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link rel="icon" href="../vinos_favicon.ico" type="image/x-icon" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="../vinos_favicon.ico" type="image/x-icon">
 <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 <title>Access Blocker</title>
 
 <style>
-<!--
 a, a:active, a:visited { color: #006666; text-decoration: none; }
 a:hover { color:#00CC99; text-decoration: underline; }
 BODY, P, H1, H2, H3, H4, H5, H6, LI, TD, DD, DT, pre, img, table, #outer-container {
@@ -51,10 +50,9 @@ th { background-color: #eee; }
 .panel-container { margin-bottom: 10px; }
 
 a[target=_blank] { text-decoration: underline; }
--->
 </style>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" />
-<script src="../jquery-1.7.1.min.js"></script> 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+<script src="../jquery-1.7.1.min.js"></script>
 <script src="../jquery.easytabs.min.js"></script>
 <script>
   $(document).ready( function() {
@@ -65,8 +63,8 @@ a[target=_blank] { text-decoration: underline; }
 
 <body>
   <h1>Access Blocker <span class="smaller">for Zen Cart v1.5.5 (and later)</span></h1>
-  <h3>Version 1.5.0 by lat9</h3>
-  <h3>Copyright (C) 2019-2022, Vinos de Frutas Tropicales</h3>
+  <h3>Version 1.5.1 by lat9</h3>
+  <h3>Copyright (C) 2019-2023, Vinos de Frutas Tropicales</h3>
   <p>Released under the General Public License (see the file named <code>license.txt</code> in the plugin's distribution for full details). This script is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</p>
   <p>Current Support Thread at Zen Cart Forums: <a href="https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread" target="_blank">https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread</a></p>
 
@@ -223,6 +221,14 @@ a[target=_blank] { text-decoration: underline; }
 
             <div id="changes">
               <ul>
+                <li>v1.5.1-beta1, 2023-09-17:<ul>
+                    <li>BUGFIX: Ensure that &quot;rolling&quot; IP addresses are validated.</li>
+                    <li>BUGFIX: Ensure that all class properties are predefined, required for PHP 8.2 and later.</li>
+                    <li>The following files were changed:<ol>
+                        <li>/includes/classes/observers/auto.access_blocker.php</li>
+                        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+                    </ol></li>
+                </ul></li>
                 <li>v1.5.0, 2022-08-02:<ul>
                     <li>CHANGE: Use <code>zen_cfg_read_only</code> for the plugin's configured version number.</li>
                     <li>CHANGE: Added a configuration setting to enable the use of the ipdata.co EU endpoint, so customer IP information 'stays in' the EU.</li>

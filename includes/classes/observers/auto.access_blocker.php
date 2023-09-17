@@ -1,9 +1,9 @@
 <?php
 // -----
 // Part of the "Access Blocker" plugin by lat9 (https://vinosdefrutastropicales.com)
-// Copyright (C) 2019-2022, Vinos de Frutas Tropicales.  All rights reserved.
+// Copyright (C) 2019-2023, Vinos de Frutas Tropicales.  All rights reserved.
 //
-// Last updated: v1.5.0
+// Last updated: v1.5.1
 //
 if (!defined('ACCESSBLOCK_WHITELISTED_IPS')) {
     define('ACCESSBLOCK_WHITELISTED_IPS', '');
@@ -20,7 +20,10 @@ class zcObserverAccessBlocker extends base
     protected
         $additional_ips = [],
         $blocked_message = '',
-        $restrict_threat_access;
+        $restrict_threat_access,
+        $chars_to_remove,
+        $debug,
+        $logfile;
 
     public function __construct() 
     {
@@ -169,7 +172,7 @@ class zcObserverAccessBlocker extends base
         } elseif (empty($_SESSION['access_blocked'])) {
             $access_blocked = false;
             if (ACCESSBLOCK_IPDATA_API_KEY !== '') {
-                if (!isset($_SESSION['ipData'])) {
+                if (!isset($_SESSION['ipData']) || $_SESSION['ipData']->ip !== $_SERVER['REMOTE_ADDR']) {
                     if (!class_exists('ipData')) {
                         require DIR_WS_CLASSES . 'ipData.php';
                     }
@@ -375,7 +378,7 @@ class zcObserverAccessBlocker extends base
     {
         if ($this->debug === true) {
             $ip_address = (!empty($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : 'not provided';
-            $blocked_session_message = (isset($_SESSION['blocked_message']) && $_SESSION['blocked_message'] != $this->blocked_message) ? $_SESSION['blocked_message'] : '';
+            $blocked_session_message = (isset($_SESSION['blocked_message']) && $_SESSION['blocked_message'] !== $this->blocked_message) ? $_SESSION['blocked_message'] : '';
             $message = date('Y-m-d H:i:s') . ": Access blocked on $blocked_page page for IP Address ($ip_address) and/or email ($email_address). " . $blocked_session_message . $this->blocked_message;
             error_log($message . PHP_EOL, 3, $this->logfile);
         }
