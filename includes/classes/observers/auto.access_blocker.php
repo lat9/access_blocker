@@ -172,7 +172,7 @@ class zcObserverAccessBlocker extends base
         } elseif (empty($_SESSION['access_blocked'])) {
             $access_blocked = false;
             if (ACCESSBLOCK_IPDATA_API_KEY !== '') {
-                if (!isset($_SESSION['ipData']) || $_SESSION['ipData']->ip !== $_SERVER['REMOTE_ADDR']) {
+                if (!isset($_SESSION['ipData']->ip) || $_SESSION['ipData']->ip !== $_SERVER['REMOTE_ADDR']) {
                     if (!class_exists('ipData')) {
                         require DIR_WS_CLASSES . 'ipData.php';
                     }
