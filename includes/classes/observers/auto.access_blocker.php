@@ -233,9 +233,15 @@ class zcObserverAccessBlocker extends base
         return (empty($_SESSION['ipData']->country_code)) ? false : $_SESSION['ipData']->country_code;
     }
 
+    // -----
+    // The 'organisation' property previously returned by ipdata.co is now returned in either
+    // the `company->name` or `asn->name` property (or both).
+    //
     protected function getIpOrganization()
     {
-        return (empty($_SESSION['ipData']->organisation)) ? false : $_SESSION['ipData']->organisation;
+        $organization = $_SESSION['ipData']->company->name ?? '';
+        $organization .= $_SESSION['ipData']->asn->name ?? '';
+        return ($organization === '') ? false : $organization;
     }
 
     protected function isIpBlocked($remote_addr)
