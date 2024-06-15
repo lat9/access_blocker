@@ -10,7 +10,7 @@
 <style>
 a, a:active, a:visited { color: #006666; text-decoration: none; }
 a:hover { color:#00CC99; text-decoration: underline; }
-BODY, P, H1, H2, H3, H4, H5, H6, LI, TD, DD, DT, pre, img, table, #outer-container {
+body, p, h1, h2, h3, h4, h5, h6, li, td, dd, dt, pre, img, table {
   font-family: Roboto, Verdana, AvantGarde, Tahoma, Arial, sans-serif;
   font-size: 12pt;
   color: black;
@@ -18,15 +18,10 @@ BODY, P, H1, H2, H3, H4, H5, H6, LI, TD, DD, DT, pre, img, table, #outer-contain
   margin: 20px;
   line-height: 1.75em;
 }
-H1, H2, H3, H4 { font-weight: bold; }
-h1 { font-size: 20px; }
-h2 { font-size: 16px; }
-pre { padding-left: 25px; font-family: Courier; font-size: 12pt; }
-pre.no-pad, code.no-pad { padding: 0; margin: 0; }
+h1, h2 { font-weight: bold; padding: .5rem; }
+h1 { font-size: 20px; background-color: #b0cfde; }
+h2 { font-size: 16px; background-color: #c9dfec; }
 ol li, ul li, ul li ul li { margin: 5px 0; padding: 0; }
-img { margin: 0 20px; float: left; border: 1px solid #666; }
-img.wide { width: 95%; float: none; margin: 0 2.5%; }
-textarea { width: 100%; }
 .corefile { color: red; }
 .template { color: green; }
 .added { color: blue; }
@@ -40,280 +35,212 @@ td, th { padding: 5px; }
 th { background-color: #eee; }
 .smaller { font-size: smaller; }
 
-.etabs { margin: 0; padding: 0; }
-.tab { display: inline-block; zoom:1; *display:inline; background: #eee; border: solid 1px #999; border-bottom: none; border-radius: 4px 4px 0 0; margin: 0; }
-.tab a { font-size: 14px; line-height: 2em; display: block; padding: 0 10px; outline: none; }
-.tab a:hover { text-decoration: underline; }
-.tab.active { background: #fff; padding-top: 6px; position: relative; top: 1px; border-color: #666; }
-.tab a.active { font-weight: bold; }
-.tab-container .panel-container { background: #fff; border: solid #666 1px; padding: 10px; border-radius: 0 4px 4px 4px; }
-.panel-container { margin-bottom: 10px; }
-
 a[target=_blank] { text-decoration: underline; }
 </style>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
-<script src="../jquery-1.7.1.min.js"></script>
-<script src="../jquery.easytabs.min.js"></script>
-<script>
-  $(document).ready( function() {
-      $('#tab-container').easytabs();
-  });
-</script>
 </head>
 
 <body>
-  <h1>Access Blocker <span class="smaller">for Zen Cart v1.5.5 (and later)</span></h1>
-  <h3>Version 1.5.2 by lat9</h3>
-  <h3>Copyright (C) 2019-2024, Vinos de Frutas Tropicales</h3>
-  <p>Released under the General Public License (see the file named <code>license.txt</code> in the plugin's distribution for full details). This script is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</p>
-  <p>Current Support Thread at Zen Cart Forums: <a href="https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread" target="_blank">https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread</a></p>
+    <h1>Access Blocker <span class="smaller">for Zen Cart v1.5.5 (and later)</span></h1>
+    <h3>Version 1.5.2 by lat9</h3>
+    <h3>Copyright (C) 2019-2024, Vinos de Frutas Tropicales</h3>
+    <p>Released under the General Public License (see the file named <code>license.txt</code> in the plugin's distribution for full details). This script is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</p>
+    <p>Current Support Thread at Zen Cart Forums: <a href="https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread" target="_blank">https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread</a></p>
 
-  <div class="tab-container" id="outer-container">
-    <ul class="etabs">
-      <li class="tab"><a href="#overview">Overview</a></li>
-      <li class="tab"><a href="#installation">Installation and Updates</a></li>
-      <li class="tab"><a href="#configuration">Configuration</a></li>
-      <li class="tab"><a href="#version">Change History</a></li>
+    <h2 id="overview">Overview</h2>
+    <p>This <em>drop-in</em> plugin provides your store with admin-level controls to block (or limit) actions provided by the <code>contact_us</code>, <code>create_account</code> and <code>login</code> pages and/or limit access to the guest-checkout provided by <a href="https://vinosdefrutastropicales.com/index.php?main_page=product_info&cPath=2_7&products_id=69" target="_blank">One-Page Checkout</a>.  If access is blocked via configuration (see <a href="#configuration">Configuration</a> for details):</p>
+    <ol>
+        <li><b>contact_us</b>.  The message <em>appears</em> to be sent, but no email is actually generated.</li>
+        <li><b>ask_a_question</b>.  The message <em>appears</em> to be sent, but no email is actually generated.</li>
+        <li><b>create_account</b>. An account <em>appears</em> to have been created, but it's not (and no emails are sent).  The message (defined in the plugin's message-file) is displayed to give the illusion of an account having been created.</li>
+        <li><b>login</b>.  The login is denied, with the &quot;standard&quot; <em>Error: Sorry, there is no match for that email address and/or password.</em> message being displayed.</li>
+        <li><b>guest-checkout</b>.  Guest checkout is disabled, so it is not offered as a choice on the <code>login</code> page.  Any active guest checkout on a blocked IP address reverts to the 3-page version.</li>
+    </ol>
+    <p>Some features of the plugin require that you request a <em>free</em> API key from the <a href="https://ipdata.co" target="_blank">ipdata.co</a> service.  That service identifies &quot;known&quot; <em>threats</em>, based on a supplied IP address &mdash; <em>Access Blocker</em> makes that request based on the IP address used to access your site.</p>
+
+    <h2 id="install">Installation and Updates</h2>
+    <p>There are <b>no</b> core-file overwrites required by <em>Access Blocker</em>. Just rename the <code class="no-pad">YOUR_ADMIN</code> folder to match your Zen Cart admin's folder name and then copy the plugin's files to your store's file-system:</p>
+    <ol>
+        <li>/includes/classes/ipData.php</li>
+        <li>/includes/classes/observers/auto.access_blocker.php</li>
+        <li>/includes/languages/english/extra_definitions/access_blocker_messages.php</li>
+        <li>/YOUR_ADMIN/includes/auto_loaders/config.access_blocker_admin.php</li>
+        <li>/YOUR_ADMIN/includes/functions/extra_functions/zen_cfg_read_only.php <span class="smaller">(Added in v1.5.0)</span></li>
+        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+        <li>/YOUR_ADMIN/includes/languages/english/extra_definitions/access_blocker_admin_names.php</li>
+    </ol>
+    <p>On the next admin login or admin page-refresh, the plugin will perform its automatic installation to set its default configuration values into your store's database.</p>
+
+    <h3 id="remove">Uninstall</h3>
+    <p>First, delete the plugin's files that were copied to your Zen Cart installation's file-system. Then use your admin's <em>Tools-&gt;Run SQL Patches</em> to run the file <code class="no-pad">/docs/access_blocker/uninstall/access_blocker_uninstall.sql</code>.</p>
+
+    <h2 id="configuration">Configuration</h2>
+    <p>Once you've installed <em>Access Blocker</em>, you'll see an additional option in your admin's <em>Configuration</em> menu &mdash; <b>Access Blocker</b> &mdash; with the following available settings:</p>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>Plugin Version</td>
+            <td>Identifies the current version of the plugin.  The setting's <code>last_modified</code> date is set to the version's release date.</td>
+        </tr>
+        <tr>
+            <td>Enable Access Blocker?</td>
+            <td>When enabled, the plugin blocks unwanted accesses to your store's <code>contact_us</code>, <code>ask_a_question</code>, <code>create_account</code>, <code>guest checkout</code> and <code>login</code> pages, based on &quot;threats&quot; identified by the <a href="https://ipdata.co" target="_blank">ipdata.co</a> service and/or additional elements identified below.</td>
+        </tr>
+        <tr>
+            <td>ipData Service: API Key</td>
+            <td>Enter the API key you received from the <a href="https://ipdata.co/registration.html" target="_blank" rel="noreferrer">ipData</a> service.  Leave the setting empty if no ipdata.co information should be used.</td>
+        </tr>
+        <tr>
+            <td>Use ipdata.co EU Endpoint?</td>
+            <td>Indicate whether or not the ipdata.co EU endpoint should be used for threat requests. If set to <em>true</em>, a dedicated EU endpoint is used to ensure that the end user data you send us stays in the EU. Added for v1.5.0 of the plugin; defaults to <b>false</b>.</td>
+        </tr>
+        <tr>
+            <td>Totally restrict access on threats?</td>
+            <td>Indicate whether (true) or not <em>Access Blocker</em> should <b>totally</b> restrict access by forcing an &quot;HTTP 410 (Gone)&quot; if a threat is detected.. Added for v1.5.0 of the plugin; defaults to <b>false</b>.<br><br>See below for additional details.</td>
+        </tr>
+        <tr>
+            <td>Block by: Country</td>
+            <td>Enter, using a comma-separated list, the 2-character ISO country-codes for any countries to be blocked.  All IP addresses originating in these countries will be blocked.<br><br><b>Note:</b> This setting does not apply if the <em>ipData Service: API Key</em> is empty.</td>
+        </tr>
+        <tr>
+            <td>Block by: Organization</td>
+            <td>Enter, using a comma-separated list, any &quot;organizations&quot; (based on the <code>ipData</code> response) to be blocked.  If the organization associated with an IP address <em>contains</em> any of the strings entered here, the access will be blocked.<br><br><b>Note:</b> This setting does not apply if the <em>ipData Service: API Key</em> is empty.</td>
+        </tr>
+        <tr>
+            <td>Block by: IP Address</td>
+            <td>Enter, using a comma-separated list, any <em>specific</em> IP addresses to block.  If you enter only the upper segments of an IP address, e.g. <code>192.168.1.</code>, all matching IP addresses, e.g. <code>192.168.1.0-192.168.1.255</code> will be blocked.</td>
+        </tr>
+        <tr>
+            <td>IP Address: Whitelist</td>
+            <td>Enter, using a comma-separated list, any <em>specific</em> IP addresses to allow <em>unconditionally</em>.  If you enter only the upper segments of an IP address, e.g. <code>192.168.1.</code>, all matching IP addresses, e.g. <code>192.168.1.0-192.168.1.255</code> will be blocked.<br><br>If an IP address matches a whitelisted entry, that IP address is never blocked &mdash; no <code>ipdata.co</code> request will be made.</td>
+        </tr>
+        <tr>
+            <td>Block by: Host Address</td>
+            <td>Enter, using a comma-separated list, any &quot;host addresses&quot; to block.  If the host-address that originates the IP address <em>contains</em> any of the strings entered here, the access will be blocked.</td>
+        </tr>
+        <tr>
+            <td>Block by: Email Address</td>
+            <td>Enter, using a comma-separated list, any &quot;email addresses&quot; to block.  If the email-address entered <em>contains</em> any of the strings entered here, the access will be blocked.<br><br>You can block accesses for a specific email address (<code>joe@example.com</code>) or for an entire email domain (<code>@example.com</code>).</td>
+        </tr>
+        <tr>
+            <td>Email Address: Whitelist</td>
+            <td>Enter, using a comma-separated list, any &quot;email addresses&quot; to allow <em>unconditionally</em>.  If the email-address entered <em>contains</em> any of the strings entered here, the access will be blocked.<br><br>You can block accesses for a specific email address (<code>joe@example.com</code>) or for an entire email domain (<code>@example.com</code>).<br><br>If an email-address matches a whitelisted entry, that email-address is never blocked &mdash; no <code>ipdata.co</code> request will be made.</td>
+        </tr>
+       <tr>
+            <td>Block by: Message Keywords</td>
+            <td>Enter, using a comma-separated list, any words in a <code>contact_us</code> message that should result in a block.  If the message contains any of the words entered here, the associated <em>contact-us</em> email will not be sent.</td>
+        </tr>
+       <tr>
+            <td>Block by: Create-account Company</td>
+            <td>Enter, using a comma-separated list, any companies used in a <code>create_account</code> request that should result in a block.  If the company, as entered, contains any of the phrases entered here, no account will be created.</td>
+        </tr>
+       <tr>
+            <td>Enable Debug?</td>
+            <td>When enabled, the plugin creates a monthly log, <code>/logs/accesses_blocked_YYYY_mm.log</code>, of the accesses denied by the plugin.</td>
+        </tr>
+    </table>
+
+    <h3>When Access is &quot;Totally&quot; Restricted</h3>
+    <p>An additional configuration setting &mdash; <b>Totally restrict access on threats?</b> &mdash; was added for <em>Access Blocker</em> v1.5.0. When this setting's value is &quot;true&quot;, <em>Access Blocker</em> will:</p>
+    <ol>
+        <li>Check the incoming request on an initial access to the site to see if the associated current IP address, country or organization is blocked by configuration or if ipdata.co indicates that the IP address is a threat.</li>
+        <li>Issue an <em>HTTP 410 (Gone)</em> <strong>for all subsequent accesses</strong> in a session once a threat has been detected. A customer's session-access can be restored by adding their IP Address to the <b>IP Address: Whitelist</b> list.</li>
+    </ol>
+    <p><b>Note:</b> The first response returned by <code>ipdata.co</code> is now stored in the session to ensure that only one request per session is initiated.</p>
+
+    <h2 id="files">File List</h2>
+    <p>The plugin provides the following files in its distribution zip-file.</p>
+    <ol>
+        <li>/includes/classes/ipData.php</li>
+        <li>/includes/classes/observers/auto.access_blocker.php</li>
+        <li>/includes/languages/english/extra_definitions/access_blocker_messages.php</li>
+        <li>/YOUR_ADMIN/includes/auto_loaders/config.access_blocker_admin.php</li>
+        <li>/YOUR_ADMIN/includes/functions/extra_functions/zen_cfg_read_only.php <span class="smaller">(Added in v1.5.0)</span></li>
+        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+        <li>/YOUR_ADMIN/includes/languages/english/extra_definitions/access_blocker_admin_names.php</li>
+    </ol>
+
+    <h2 id="changes">Change History</h2>
+    <ul>
+        <li>v1.5.2-beta1, 2024-06-15:<ul>
+            <li>BUGFIX: Don't block cron-jobs when <em>Totally restrict access on threats</em> is active.</li>
+            <li>BUGFIX: Don't send <samp>ipdata.co</samp> requests for internal IP addresses.</li>
+            <li>The following files were changed:<ol>
+                <li>/includes/classes/ipData.php</li>
+                <li>/includes/classes/observers/auto.access_blocker.php</li>
+                <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+            </ol></li>
+        </ul></li>
+        <li>v1.5.1, 2023-11-13:<ul>
+            <li>BUGFIX: Ensure that &quot;rolling&quot; IP addresses are validated.</li>
+            <li>BUGFIX: Ensure that all class properties are predefined, required for PHP 8.2 and later.</li>
+            <li>BUGFIX: Different ipdata.co response fields used for blocks by &quot;Organization&quot;.</li>
+            <li>The following files were changed:<ol>
+                <li>/includes/classes/observers/auto.access_blocker.php</li>
+                <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+            </ol></li>
+        </ul></li>
+        <li>v1.5.0, 2022-08-02:<ul>
+            <li>CHANGE: Use <code>zen_cfg_read_only</code> for the plugin's configured version number.</li>
+            <li>CHANGE: Added a configuration setting to enable the use of the ipdata.co EU endpoint, so customer IP information 'stays in' the EU.</li>
+            <li>CHANGE: Added a configuration setting through which, once a threat is detected, all subsequent accesses to the site result in an &quot;HTTP 410 (Gone)&quot; response.</li>
+            <li>The following files were changed or <span class="added">added</span>:<ol>
+                <li>/includes/classes/ipData.php</li>
+                <li>/includes/classes/observers/auto.access_blocker.php</li>
+                <li><span class="added">/YOUR_ADMIN/includes/functions/extra_functions/zen_cfg_read_only.php</span></li>
+                <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+            </ol></li>
+        </ul></li>
+        <li>v1.4.0, 2021-08-06:<ul>
+            <li>CHANGE: Adding IP- and email-address whitelist configuration settings.</li>
+            <li>The following files were changed:<ol>
+                <li>/includes/classes/observers/auto.access_blocker.php</li>
+                <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+            </ol></li>
+        </ul></li>
+        <li>v1.3.0, 2021-04-23:<ul>
+            <li>CHANGE: Add the zc157+ <em>Ask a Question</em> page to the plugin's 'protection'.</li>
+            <li>The following files were changed:<ol>
+                <li>/includes/classes/observers/auto.access_blocker.php</li>
+                <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+            </ol></li>
+        </ul></li>
+        <li>v1.2.0, 2021-02-13:<ul>
+            <li>CHANGE: Disable <em>One-Page Checkout</em>'s guest-checkout if the access is blocked via IP.</li>
+            <li>The following files were changed:<ol>
+                <li>/includes/classes/observers/auto.access_blocker.php</li>
+                <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+            </ol></li>
+        </ul></li>
+        <li>v1.1.1, 2019-10-07:<ul>
+            <li>BUGFIX: Correct PHP notices when submitted variables are missing.</li>
+            <li>The following files were changed:<ol>
+                <li>/includes/classes/observers/auto.access_blocker.php</li>
+                <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+            </ol></li>
+        </ul></li>
+        <li>v1.1.0, 2019-06-26:<ul>
+            <li>CHANGE: Reduce calls to ipdata.co, when an email-address and/or content-specific blocks have been configured.</li>
+            <li>CHANGE: Enable create-account requests to be blocked by company.</li>
+            <li>The following files were changed:<ol>
+                <li>/includes/classes/observers/auto.access_blocker.php</li>
+                <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+            </ol></li>
+        </ul></li>
+        <li>v1.0.1, 2019-06-19:<ul>
+            <li>BUGFIX: Correct the debug logging; IP Addresses not reported due to incorrect variable name.</li>
+            <li>CHANGE: For site performance, only check for blocked requests on the potentially-blocked pages.</li>
+            <li>CHANGE: Modify the plugin's configuration settings, changing the &quot;list-type&quot; settings to use a <code>textarea<code> box instead of a simple <code>input</code>.</li>
+            <li>The following files were changed:<ol>
+                <li>/includes/classes/observers/auto.access_blocker.php</li>
+                <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
+            </ol></li>
+        </ul></li>
+        <li>v1.0.0, 2019-03-02:<ul>
+          <li>Initial public release.</li>
+        </ul></li>
     </ul>
-    <div class="panel-container">
-      <div id="overview">
-        <p>This <em>drop-in</em> plugin provides your store with admin-level controls to block (or limit) actions provided by the <code>contact_us</code>, <code>create_account</code> and <code>login</code> pages and/or limit access to the guest-checkout provided by <a href="https://vinosdefrutastropicales.com/index.php?main_page=product_info&cPath=2_7&products_id=69" target="_blank">One-Page Checkout</a>.  If access is blocked via configuration (see the <em>Configuration</em> tab for details):</p>
-        <ol>
-          <li><b>contact_us</b>.  The message <em>appears</em> to be sent, but no email is actually generated.</li>
-          <li><b>ask_a_question</b>.  The message <em>appears</em> to be sent, but no email is actually generated.</li>
-          <li><b>create_account</b>. An account <em>appears</em> to have been created, but it's not (and no emails are sent).  The message (defined in the plugin's message-file) is displayed to give the illusion of an account having been created.</li>
-          <li><b>login</b>.  The login is denied, with the &quot;standard&quot; <em>Error: Sorry, there is no match for that email address and/or password.</em> message being displayed.</li>
-          <li><b>guest-checkout</b>.  Guest checkout is disabled, so it is not offered as a choice on the <code>login</code> page.  Any active guest checkout on a blocked IP address reverts to the 3-page version.</li>
-        </ol>
-        <p>Some features of the plugin require that you request a <em>free</em> API key from the <a href="https://ipdata.co" target="_blank">ipdata.co</a> service.  That service identifies &quot;known&quot; <em>threats</em>, based on a supplied IP address &mdash; <em>Access Blocker</em> makes that request based on the IP address used to access your site.</p>
-      </div>
-
-      <div id="installation">
-        <p>This section identifies the procedure you'll use to install/update or remove the plugin for your Zen Cart.</p>
-
-        <div class="tab-container" id="inner-container2">
-          <ul class="etabs">
-            <li class="tab"><a href="#install">Installation and Updates</a></li>
-            <li class="tab"><a href="#remove">Uninstall</a></li>
-          </ul>
-          <div class="panel-container">
-            <div id="install">
-              <p>There are <b>no</b> core-file overwrites required by <em>Access Blocker</em>. Just rename the <code class="no-pad">YOUR_ADMIN</code> folder to match your Zen Cart admin's folder name and then copy the plugin's files to your store's file-system:</p>
-              <ol>
-                <li>/includes/classes/ipData.php</li>
-                <li>/includes/classes/observers/auto.access_blocker.php</li>
-                <li>/includes/languages/english/extra_definitions/access_blocker_messages.php</li>
-                <li>/YOUR_ADMIN/includes/auto_loaders/config.access_blocker_admin.php</li>
-                <li>/YOUR_ADMIN/includes/functions/extra_functions/zen_cfg_read_only.php <span class="smaller">(Added in v1.5.0)</span></li>
-                <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
-                <li>/YOUR_ADMIN/includes/languages/english/extra_definitions/access_blocker_admin_names.php</li>
-              </ol>
-              <p>On the next admin login or admin page-refresh, the plugin will perform its automatic installation to set its default configuration values into your store's database.</p>
-            </div>
-             
-            <div id="remove">
-              <p>First, delete the plugin's files that were copied to your Zen Cart installation's file-system. Then use your admin's <em>Tools-&gt;Run SQL Patches</em> to run the file <code class="no-pad">/docs/access_blocker/uninstall/access_blocker_uninstall.sql</code>.</p>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      <div id="configuration">
-        <p>Once you've installed <em>Access Blocker</em>, you'll see an additional option in your admin's <em>Configuration</em> menu &mdash; <b>Access Blocker</b> &mdash; with the following available settings:</p>
-        <table>
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-            </tr>
-            <tr>
-                <td>Plugin Version</td>
-                <td>Identifies the current version of the plugin.  The setting's <code>last_modified</code> date is set to the version's release date.</td>
-            </tr>
-            <tr>
-                <td>Enable Access Blocker?</td>
-                <td>When enabled, the plugin blocks unwanted accesses to your store's <code>contact_us</code>, <code>ask_a_question</code>, <code>create_account</code>, <code>guest checkout</code> and <code>login</code> pages, based on &quot;threats&quot; identified by the <a href="https://ipdata.co" target="_blank">ipdata.co</a> service and/or additional elements identified below.</td>
-            </tr>
-            <tr>
-                <td>ipData Service: API Key</td>
-                <td>Enter the API key you received from the <a href="https://ipdata.co/registration.html" target="_blank" rel="noreferrer">ipData</a> service.  Leave the setting empty if no ipdata.co information should be used.</td>
-            </tr>
-            <tr>
-                <td>Use ipdata.co EU Endpoint?</td>
-                <td>Indicate whether or not the ipdata.co EU endpoint should be used for threat requests. If set to <em>true</em>, a dedicated EU endpoint is used to ensure that the end user data you send us stays in the EU. Added for v1.5.0 of the plugin; defaults to <b>false</b>.</td>
-            </tr>
-            <tr>
-                <td>Totally restrict access on threats?</td>
-                <td>Indicate whether (true) or not <em>Access Blocker</em> should <b>totally</b> restrict access by forcing an &quot;HTTP 410 (Gone)&quot; if a threat is detected.. Added for v1.5.0 of the plugin; defaults to <b>false</b>.<br><br>See below for additional details.</td>
-            </tr>
-            <tr>
-                <td>Block by: Country</td>
-                <td>Enter, using a comma-separated list, the 2-character ISO country-codes for any countries to be blocked.  All IP addresses originating in these countries will be blocked.<br><br><b>Note:</b> This setting does not apply if the <em>ipData Service: API Key</em> is empty.</td>
-            </tr>
-            <tr>
-                <td>Block by: Organization</td>
-                <td>Enter, using a comma-separated list, any &quot;organizations&quot; (based on the <code>ipData</code> response) to be blocked.  If the organization associated with an IP address <em>contains</em> any of the strings entered here, the access will be blocked.<br><br><b>Note:</b> This setting does not apply if the <em>ipData Service: API Key</em> is empty.</td>
-            </tr>
-            <tr>
-                <td>Block by: IP Address</td>
-                <td>Enter, using a comma-separated list, any <em>specific</em> IP addresses to block.  If you enter only the upper segments of an IP address, e.g. <code>192.168.1.</code>, all matching IP addresses, e.g. <code>192.168.1.0-192.168.1.255</code> will be blocked.</td>
-            </tr>
-            <tr>
-                <td>IP Address: Whitelist</td>
-                <td>Enter, using a comma-separated list, any <em>specific</em> IP addresses to allow <em>unconditionally</em>.  If you enter only the upper segments of an IP address, e.g. <code>192.168.1.</code>, all matching IP addresses, e.g. <code>192.168.1.0-192.168.1.255</code> will be blocked.<br><br>If an IP address matches a whitelisted entry, that IP address is never blocked &mdash; no <code>ipdata.co</code> request will be made.</td>
-            </tr>
-            <tr>
-                <td>Block by: Host Address</td>
-                <td>Enter, using a comma-separated list, any &quot;host addresses&quot; to block.  If the host-address that originates the IP address <em>contains</em> any of the strings entered here, the access will be blocked.</td>
-            </tr>
-            <tr>
-                <td>Block by: Email Address</td>
-                <td>Enter, using a comma-separated list, any &quot;email addresses&quot; to block.  If the email-address entered <em>contains</em> any of the strings entered here, the access will be blocked.<br><br>You can block accesses for a specific email address (<code>joe@example.com</code>) or for an entire email domain (<code>@example.com</code>).</td>
-            </tr>
-            <tr>
-                <td>Email Address: Whitelist</td>
-                <td>Enter, using a comma-separated list, any &quot;email addresses&quot; to allow <em>unconditionally</em>.  If the email-address entered <em>contains</em> any of the strings entered here, the access will be blocked.<br><br>You can block accesses for a specific email address (<code>joe@example.com</code>) or for an entire email domain (<code>@example.com</code>).<br><br>If an email-address matches a whitelisted entry, that email-address is never blocked &mdash; no <code>ipdata.co</code> request will be made.</td>
-            </tr>
-           <tr>
-                <td>Block by: Message Keywords</td>
-                <td>Enter, using a comma-separated list, any words in a <code>contact_us</code> message that should result in a block.  If the message contains any of the words entered here, the associated <em>contact-us</em> email will not be sent.</td>
-            </tr>
-           <tr>
-                <td>Block by: Create-account Company</td>
-                <td>Enter, using a comma-separated list, any companies used in a <code>create_account</code> request that should result in a block.  If the company, as entered, contains any of the phrases entered here, no account will be created.</td>
-            </tr>
-           <tr>
-                <td>Enable Debug?</td>
-                <td>When enabled, the plugin creates a monthly log, <code>/logs/accesses_blocked_YYYY_mm.log</code>, of the accesses denied by the plugin.</td>
-            </tr>
-        </table>
-
-        <h2>When Access is &quot;Totally&quot; Restricted</h2>
-        <p>An additional configuration setting &mdash; <b>Totally restrict access on threats?</b> &mdash; was added for <em>Access Blocker</em> v1.5.0. When this setting's value is &quot;true&quot;, <em>Access Blocker</em> will:</p>
-        <ol>
-            <li>Check the incoming request on an initial access to the site to see if the associated current IP address, country or organization is blocked by configuration or if ipdata.co indicates that the IP address is a threat.</li>
-            <li>Issue an <em>HTTP 410 (Gone)</em> <strong>for all subsequent accesses</strong> in a session once a threat has been detected. A customer's session-access can be restored by adding their IP Address to the <b>IP Address: Whitelist</b> list.</li>
-        </ol>
-        <p><b>Note:</b> The first response returned by <code>ipdata.co</code> is now stored in the session to ensure that only one request per session is initiated.</p>
-      </div>
-
-      <div id="version">
-        <p>This section identifies the files added by this plugin as well as the plugin's change history.</p>
-
-        <div class="tab-container" id="inner-container3">
-          <ul class="etabs">
-            <li class="tab"><a href="#changes">Change History</a></li>
-            <li class="tab"><a href="#files">File List</a></li>
-          </ul>
-          <div class="panel-container">
-            <div id="files">
-              <p>The plugin provides the following files in its distribution zip-file.</p>
-              <ol>
-                <li>/includes/classes/ipData.php</li>
-                <li>/includes/classes/observers/auto.access_blocker.php</li>
-                <li>/includes/languages/english/extra_definitions/access_blocker_messages.php</li>
-                <li>/YOUR_ADMIN/includes/auto_loaders/config.access_blocker_admin.php</li>
-                <li>/YOUR_ADMIN/includes/functions/extra_functions/zen_cfg_read_only.php <span class="smaller">(Added in v1.5.0)</span></li>
-                <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
-                <li>/YOUR_ADMIN/includes/languages/english/extra_definitions/access_blocker_admin_names.php</li>
-              </ol>
-            </div>
-
-            <div id="changes">
-              <ul>
-                <li>v1.5.2-beta1, 2024-06-15:<ul>
-                    <li>BUGFIX: Don't block cron-jobs when <em>Totally restrict access on threats</em> is active.</li>
-                    <li>BUGFIX: Don't send <samp>ipdata.co</samp> requests for internal IP addresses.</li>
-                    <li>The following files were changed:<ol>
-                        <li>/includes/classes/ipData.php</li>
-                        <li>/includes/classes/observers/auto.access_blocker.php</li>
-                        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
-                    </ol></li>
-                </ul></li>
-                <li>v1.5.1, 2023-11-13:<ul>
-                    <li>BUGFIX: Ensure that &quot;rolling&quot; IP addresses are validated.</li>
-                    <li>BUGFIX: Ensure that all class properties are predefined, required for PHP 8.2 and later.</li>
-                    <li>BUGFIX: Different ipdata.co response fields used for blocks by &quot;Organization&quot;.</li>
-                    <li>The following files were changed:<ol>
-                        <li>/includes/classes/observers/auto.access_blocker.php</li>
-                        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
-                    </ol></li>
-                </ul></li>
-                <li>v1.5.0, 2022-08-02:<ul>
-                    <li>CHANGE: Use <code>zen_cfg_read_only</code> for the plugin's configured version number.</li>
-                    <li>CHANGE: Added a configuration setting to enable the use of the ipdata.co EU endpoint, so customer IP information 'stays in' the EU.</li>
-                    <li>CHANGE: Added a configuration setting through which, once a threat is detected, all subsequent accesses to the site result in an &quot;HTTP 410 (Gone)&quot; response.</li>
-                    <li>The following files were changed or <span class="added">added</span>:<ol>
-                        <li>/includes/classes/ipData.php</li>
-                        <li>/includes/classes/observers/auto.access_blocker.php</li>
-                        <li><span class="added">/YOUR_ADMIN/includes/functions/extra_functions/zen_cfg_read_only.php</span></li>
-                        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
-                    </ol></li>
-                </ul></li>
-                <li>v1.4.0, 2021-08-06:<ul>
-                    <li>CHANGE: Adding IP- and email-address whitelist configuration settings.</li>
-                    <li>The following files were changed:<ol>
-                        <li>/includes/classes/observers/auto.access_blocker.php</li>
-                        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
-                    </ol></li>
-                </ul></li>
-                <li>v1.3.0, 2021-04-23:<ul>
-                    <li>CHANGE: Add the zc157+ <em>Ask a Question</em> page to the plugin's 'protection'.</li>
-                    <li>The following files were changed:<ol>
-                        <li>/includes/classes/observers/auto.access_blocker.php</li>
-                        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
-                    </ol></li>
-                </ul></li>
-                <li>v1.2.0, 2021-02-13:<ul>
-                    <li>CHANGE: Disable <em>One-Page Checkout</em>'s guest-checkout if the access is blocked via IP.</li>
-                    <li>The following files were changed:<ol>
-                        <li>/includes/classes/observers/auto.access_blocker.php</li>
-                        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
-                    </ol></li>
-                </ul></li>
-                <li>v1.1.1, 2019-10-07:<ul>
-                    <li>BUGFIX: Correct PHP notices when submitted variables are missing.</li>
-                    <li>The following files were changed:<ol>
-                        <li>/includes/classes/observers/auto.access_blocker.php</li>
-                        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
-                    </ol></li>
-                </ul></li>
-                <li>v1.1.0, 2019-06-26:<ul>
-                    <li>CHANGE: Reduce calls to ipdata.co, when an email-address and/or content-specific blocks have been configured.</li>
-                    <li>CHANGE: Enable create-account requests to be blocked by company.</li>
-                    <li>The following files were changed:<ol>
-                        <li>/includes/classes/observers/auto.access_blocker.php</li>
-                        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
-                    </ol></li>
-                </ul></li>
-                <li>v1.0.1, 2019-06-19:<ul>
-                    <li>BUGFIX: Correct the debug logging; IP Addresses not reported due to incorrect variable name.</li>
-                    <li>CHANGE: For site performance, only check for blocked requests on the potentially-blocked pages.</li>
-                    <li>CHANGE: Modify the plugin's configuration settings, changing the &quot;list-type&quot; settings to use a <code>textarea<code> box instead of a simple <code>input</code>.</li>
-                    <li>The following files were changed:<ol>
-                        <li>/includes/classes/observers/auto.access_blocker.php</li>
-                        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
-                    </ol></li>
-                </ul></li>
-                <li>v1.0.0, 2019-03-02:<ul>
-                  <li>Initial public release.</li>
-                </ul></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    $('#outer-container, #inner-container2, #inner-container3').easytabs();
-
-    $( '.side-link' ).click( function() {
-        window.location.hash = $(this).attr( 'href' );
-        location.reload();
-    });
-  </script>
-
 </body>
 </html>
