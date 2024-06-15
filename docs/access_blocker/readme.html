@@ -63,8 +63,8 @@ a[target=_blank] { text-decoration: underline; }
 
 <body>
   <h1>Access Blocker <span class="smaller">for Zen Cart v1.5.5 (and later)</span></h1>
-  <h3>Version 1.5.1 by lat9</h3>
-  <h3>Copyright (C) 2019-2023, Vinos de Frutas Tropicales</h3>
+  <h3>Version 1.5.2 by lat9</h3>
+  <h3>Copyright (C) 2019-2024, Vinos de Frutas Tropicales</h3>
   <p>Released under the General Public License (see the file named <code>license.txt</code> in the plugin's distribution for full details). This script is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</p>
   <p>Current Support Thread at Zen Cart Forums: <a href="https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread" target="_blank">https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread</a></p>
 
@@ -192,7 +192,7 @@ a[target=_blank] { text-decoration: underline; }
         <p>An additional configuration setting &mdash; <b>Totally restrict access on threats?</b> &mdash; was added for <em>Access Blocker</em> v1.5.0. When this setting's value is &quot;true&quot;, <em>Access Blocker</em> will:</p>
         <ol>
             <li>Check the incoming request on an initial access to the site to see if the associated current IP address, country or organization is blocked by configuration or if ipdata.co indicates that the IP address is a threat.</li>
-            <li>Issue an <em>HTTP 410 (Gone)</em> <strong>for all subsequent accesses</strong> in a session once a threat has been detected. A customer's session-access can be restored by adding their IP Address to the <b>Email Address: Whitelist</b> list.</li>
+            <li>Issue an <em>HTTP 410 (Gone)</em> <strong>for all subsequent accesses</strong> in a session once a threat has been detected. A customer's session-access can be restored by adding their IP Address to the <b>IP Address: Whitelist</b> list.</li>
         </ol>
         <p><b>Note:</b> The first response returned by <code>ipdata.co</code> is now stored in the session to ensure that only one request per session is initiated.</p>
       </div>
