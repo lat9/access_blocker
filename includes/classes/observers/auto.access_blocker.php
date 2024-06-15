@@ -1,9 +1,9 @@
 <?php
 // -----
 // Part of the "Access Blocker" plugin by lat9 (https://vinosdefrutastropicales.com)
-// Copyright (C) 2019-2023, Vinos de Frutas Tropicales.  All rights reserved.
+// Copyright (C) 2019-2024, Vinos de Frutas Tropicales.  All rights reserved.
 //
-// Last updated: v1.5.1
+// Last updated: v1.5.2
 //
 if (!defined('ACCESSBLOCK_WHITELISTED_IPS')) {
     define('ACCESSBLOCK_WHITELISTED_IPS', '');
@@ -374,7 +374,7 @@ class zcObserverAccessBlocker extends base
 
     protected function denyIfThreatAccessRestricted()
     {
-        if ($this->restrict_threat_access === true && !empty($_SESSION['access_blocked'])) {
+        if ($this->restrict_threat_access === true && PHP_SAPI !== 'cli' && !empty($_SESSION['access_blocked'])) {
             header('HTTP/1.0 410 Gone');
             zen_exit();
         }
