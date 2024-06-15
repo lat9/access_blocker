@@ -223,7 +223,9 @@ a[target=_blank] { text-decoration: underline; }
               <ul>
                 <li>v1.5.2-beta1, 2024-06-15:<ul>
                     <li>BUGFIX: Don't block cron-jobs when <em>Totally restrict access on threats</em> is active.</li>
+                    <li>BUGFIX: Don't send <samp>ipdata.co</samp> requests for internal IP addresses.</li>
                     <li>The following files were changed:<ol>
+                        <li>/includes/classes/ipData.php</li>
                         <li>/includes/classes/observers/auto.access_blocker.php</li>
                         <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
                     </ol></li>

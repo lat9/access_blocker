@@ -1,9 +1,9 @@
 <?php
 // -----
 // Part of the "Access Blocker" plugin by lat9 (https://vinosdefrutastropicales.com)
-// Copyright (c) 2019-2022, Vinos de Frutas Tropicales.
+// Copyright (c) 2019-2024, Vinos de Frutas Tropicales.
 //
-// Last updated: v1.5.0
+// Last updated: v1.5.2
 //
 // A class to gather and return information about a specified IP address using the
 // service provided by https://ipdata.co.
@@ -21,6 +21,19 @@ class ipData
     public function __construct($api_key, $ip_address)
     {
         $this->response = false;
+
+        // -----
+        // No sense in "bothering" ipdata.co with reserved (i.e. internal) IP addresses.
+        //
+        $test = filter_var(
+            $ip_address,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE |  FILTER_FLAG_NO_RES_RANGE
+        );
+        if ($test === false) {
+            $this->debug("ipData: $ip_address is a reserved IP address.");
+            return;
+        }
 
         $ch = curl_init();
 
