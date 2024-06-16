@@ -37,6 +37,11 @@ class zcObserverAccessBlocker extends base
             $this->debug = (ACCESSBLOCK_DEBUG === 'true');
             $this->logfile = DIR_FS_LOGS . '/accesses_blocked_' . date('Y_m') . '.log';
 
+            if ($this->isIpWhitelisted($_SERVER['REMOTE_ADDR'] ?? '.') === true) {
+                unset($_SESSION['access_blocked']);
+                return;
+            }
+
             $this->restrict_threat_access = (ACCESSBLOCK_RESTRICT_THREAT_ACCESS === 'true');
             if ($this->restrict_threat_access === true && empty($_SESSION['access_blocked'])) {
                 $this->isAccessBlocked();
