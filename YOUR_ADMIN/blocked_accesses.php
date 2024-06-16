@@ -1,4 +1,23 @@
 <?php
+// -----
+// Part of the Access Blocker plugin, created by lat9 (https://vinosdefrutastropicales.com)
+// Copyright (c) 2019-2024, Vinos de Frutas Tropicales.
+//
+// This developer tool inspects a given logs/accesses_blocked_YYYY_MM.log to see if additional
+// "threat" IP addresses have been blocked, over-and-above those currently present in the site's
+// "Blocked IPs" list.
+//
+// Usage:
+//
+// 1. Sign into the Zen Cart admin.
+// 2. Hand-enter the URL in the browser's address: https://mysite.com/admin/blocked_accesses.php?suffix=YYYY_MM,
+//    where YYYY_MM is the 'suffix' on the existing log to inspect.
+//
+// The tool gathers all IP addresses that were found to be a threat but aren't currently registered in the
+// Access Blocker's "Block by: IP Address" list. Upon completion, the tool creates a file named
+// logs/blocked_accesses_update_YYYY-MM-DD-HH-MM-SS.log that combines the IP threats found and those currently
+// configured.  The contents of that updated log is suitable to copy/paste into the "Block by: IP Address" setting.
+//
 require 'includes/application_top.php';
 
 $blocked_ips = explode(',', str_replace(' ', '', ACCESSBLOCK_BLOCKED_IPS));
@@ -19,7 +38,7 @@ if (!is_file($logfile_name)) {
 }
 
 $blocked_accesses = file($logfile_name);
-$ips_handled = array();
+$ips_handled = [];
 foreach ($blocked_accesses as $current) {
     // -----
     // Look for content enclosed by parentheses, e.g. (xx).  The first one is the IP address
@@ -36,33 +55,34 @@ foreach ($blocked_accesses as $current) {
                         break;
                     }
                 }
-                if (!$blocked) {
+                if ($blocked === false && !in_array($ip_address, $blocked_ips)) {
                     echo $ip_address . ' is not currently being blocked.<br>';
                     $blocked_ips[] = $ip_address;
                 }
             }
-            $ips_handled[$ip_address] = array(
+            $ips_handled[$ip_address] = [
                 'count' => 0,
-            );
+            ];
         }
         $ips_handled[$ip_address]['count']++;
     }
 }
 
 // -----
-// Remove duplicates from the blocked-ip list, then sort the addresses for output.
+// Sort the addresses for output.
 //
-$blocked_ips = array_unique($blocked_ips);
 natsort($blocked_ips);
-echo implode(', ', $blocked_ips);
+echo '<br><br><b>Updated IPS to block:</b><br>' . implode(', ', $blocked_ips);
 
-error_log(implode(PHP_EOL, $blocked_ips), 3, DIR_FS_LOGS . '/accesses_blocked_update_' . date('Y-m-d-H-I-s') . '.log');
+error_log(implode(', ', $blocked_ips), 3, DIR_FS_LOGS . '/accesses_blocked_update_' . date('Y-m-d-H-I-s') . '.log');
 
 // -----
 // Display a table showing which IPs were blocked (and how often).
 //
 uksort($ips_handled, 'strnatcmp');
 ?>
+<br>
+<br>
 <table>
     <tr>
         <th>IP Address</th>
