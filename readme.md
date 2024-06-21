@@ -1,5 +1,7 @@
 # Access Blocker for Zen Cart v1.5.5 and Later, v1.5.2
 
+Download from Zen Cart Plugins: https://www.zen-cart.com/downloads.php?do=file&id=2237
+
 This drop-in plugin provides your store with admin-level controls to block (or limit) actions provided by the contact_us, create_account and login pages and/or limit access to the guest-checkout provided by [One-Page Checkout](https://vinosdefrutastropicales.com/index.php?main_page=product_info&cPath=2_7&products_id=69). If access is blocked via admin-level configuration:
 
 1. **contact_us**. The message appears to be sent, but no email is actually generated.
