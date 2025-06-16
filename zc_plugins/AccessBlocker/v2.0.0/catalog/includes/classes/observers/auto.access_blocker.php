@@ -45,6 +45,7 @@ class zcObserverAccessBlocker extends base
                     'NOTIFY_PROCESS_3RD_PARTY_LOGINS',
                     'NOTIFY_OPC_GUEST_CHECKOUT_OVERRIDE',
                     'NOTIFY_ASK_A_QUESTION_CAPTCHA_CHECK',
+                    'NOTIFY_PASSWORD_FORGOTTEN_VALIDATED',
                 ]
             );
         }
@@ -109,6 +110,18 @@ class zcObserverAccessBlocker extends base
 
                     $GLOBALS['messageStack']->add_session('header', ACCESSBLOCK_CREATE_ACCOUNT_SUBMITTED_FOR_REVIEW, 'success');
                     zen_redirect(zen_href_link(FILENAME_SHOPPING_CART));
+                }
+                break;
+
+            case 'NOTIFY_PASSWORD_FORGOTTEN_VALIDATED':
+                $email_address = $p1;
+                $sessionMessage = $p2;
+                if (!$this->isEmailWhitelisted($email_address) && ($this->isEmailAddressBlocked($email_address) || $this->isAccessBlocked())) {
+                    $this->logBlockedAccesses('password_forgotten', $email_address);
+                    $this->denyIfThreatAccessRestricted();
+
+                    $messageStack->add_session('login', $sessionMessage, 'success');
+                    zen_redirect(zen_href_link(FILENAME_LOGIN, '', 'SSL'));
                 }
                 break;
 

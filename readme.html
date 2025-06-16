@@ -47,13 +47,14 @@ a[target=_blank] { text-decoration: underline; }
     <p>Current Support Thread at Zen Cart Forums: <a href="https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread" target="_blank">https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread</a></p>
 
     <h2 id="overview">Overview</h2>
-    <p>This <em>encapsulated</em> plugin provides your store with admin-level controls to block (or limit) actions provided by the <code>ask_a_question</code>, <code>contact_us</code>, <code>create_account</code> and <code>login</code> pages and/or limit access to the guest-checkout provided by <a href="https://vinosdefrutastropicales.com/index.php?main_page=product_info&cPath=2_7&products_id=69" target="_blank">One-Page Checkout</a>.  If access is blocked via configuration (see <a href="#configuration">Configuration</a> for details):</p>
+    <p>This <em>encapsulated</em> plugin provides your store with admin-level controls to block (or limit) actions provided by the <code>ask_a_question</code>, <code>contact_us</code>, <code>create_account</code>, <code>login</code> and <code>password_forgotten</code> pages and/or limit access to the guest-checkout provided by <a href="https://vinosdefrutastropicales.com/index.php?main_page=product_info&cPath=2_7&products_id=69" target="_blank">One-Page Checkout</a>.  If access is blocked via configuration (see <a href="#configuration">Configuration</a> for details):</p>
     <ol>
         <li><b>contact_us</b>.  The message <em>appears</em> to be sent, but no email is actually generated.</li>
         <li><b>ask_a_question</b>.  The message <em>appears</em> to be sent, but no email is actually generated.</li>
         <li><b>create_account</b>. An account <em>appears</em> to have been created, but it's not (and no emails are sent).  The message (defined in the plugin's message-file) is displayed to give the illusion of an account having been created.</li>
         <li><b>login</b>.  The login is denied, with the &quot;standard&quot; <em>Error: Sorry, there is no match for that email address and/or password.</em> message being displayed.</li>
         <li><b>guest-checkout</b>.  Guest checkout is disabled, so it is not offered as a choice on the <code>login</code> page.  Any active guest checkout on a blocked IP address reverts to the 3-page version.</li>
+        <li><b>password_forgotten</b>. A message indicates that an email has been sent, but no emails are sent; the login page is subsequently displayed.</li>
     </ol>
     <p>Some features of the plugin require that you request a <em>free</em> API key from the <a href="https://ipdata.co" target="_blank">ipdata.co</a> service.  That service identifies &quot;known&quot; <em>threats</em>, based on a supplied IP address &mdash; <em>Access Blocker</em> makes that request based on the IP address used to access your site.</p>
 
@@ -160,6 +161,7 @@ a[target=_blank] { text-decoration: underline; }
     <ul>
         <li>v2.0.0-beta1, 2025-06-15:<ul>
             <li>CHANGE: Plugin converted to an encapsulated one; support dropped for Zen Cart versions prior to 2.0.0.</li>
+            <li>CHANGE: Include handling for the <code>password_forgotten</code> page.</li>
         </ul></li>
         <li>v1.5.2, 2024-06-16:<ul>
             <li>BUGFIX: Don't block cron-jobs when <em>Totally restrict access on threats</em> is active.</li>
