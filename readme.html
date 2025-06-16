@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="../vinos_favicon.ico" type="image/x-icon">
+<link rel="icon" href="vinos_favicon.ico" type="image/x-icon">
 <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 <title>Access Blocker</title>
 
@@ -40,14 +40,14 @@ a[target=_blank] { text-decoration: underline; }
 </head>
 
 <body>
-    <h1>Access Blocker <span class="smaller">for Zen Cart v1.5.5 (and later)</span></h1>
-    <h3>Version 1.5.2 by lat9</h3>
-    <h3>Copyright (C) 2019-2024, Vinos de Frutas Tropicales</h3>
+    <h1>Access Blocker <span class="smaller">for Zen Cart v2.0.0 (and later)</span></h1>
+    <h3>Version 2.0.0 by lat9</h3>
+    <h3>Copyright (C) 2019-2025, Vinos de Frutas Tropicales</h3>
     <p>Released under the General Public License (see the file named <code>license.txt</code> in the plugin's distribution for full details). This script is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</p>
     <p>Current Support Thread at Zen Cart Forums: <a href="https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread" target="_blank">https://www.zen-cart.com/showthread.php?225161-Access-Blocker-Support-Thread</a></p>
 
     <h2 id="overview">Overview</h2>
-    <p>This <em>drop-in</em> plugin provides your store with admin-level controls to block (or limit) actions provided by the <code>contact_us</code>, <code>create_account</code> and <code>login</code> pages and/or limit access to the guest-checkout provided by <a href="https://vinosdefrutastropicales.com/index.php?main_page=product_info&cPath=2_7&products_id=69" target="_blank">One-Page Checkout</a>.  If access is blocked via configuration (see <a href="#configuration">Configuration</a> for details):</p>
+    <p>This <em>encapsulated</em> plugin provides your store with admin-level controls to block (or limit) actions provided by the <code>ask_a_question</code>, <code>contact_us</code>, <code>create_account</code> and <code>login</code> pages and/or limit access to the guest-checkout provided by <a href="https://vinosdefrutastropicales.com/index.php?main_page=product_info&cPath=2_7&products_id=69" target="_blank">One-Page Checkout</a>.  If access is blocked via configuration (see <a href="#configuration">Configuration</a> for details):</p>
     <ol>
         <li><b>contact_us</b>.  The message <em>appears</em> to be sent, but no email is actually generated.</li>
         <li><b>ask_a_question</b>.  The message <em>appears</em> to be sent, but no email is actually generated.</li>
@@ -57,22 +57,31 @@ a[target=_blank] { text-decoration: underline; }
     </ol>
     <p>Some features of the plugin require that you request a <em>free</em> API key from the <a href="https://ipdata.co" target="_blank">ipdata.co</a> service.  That service identifies &quot;known&quot; <em>threats</em>, based on a supplied IP address &mdash; <em>Access Blocker</em> makes that request based on the IP address used to access your site.</p>
 
-    <h2 id="install">Installation and Updates</h2>
-    <p>There are <b>no</b> core-file overwrites required by <em>Access Blocker</em>. Just rename the <code class="no-pad">YOUR_ADMIN</code> folder to match your Zen Cart admin's folder name and then copy the plugin's files to your store's file-system:</p>
+    <h2>Installing, Upgrading or Uninstalling</h2>
+    <p>This section identifies the processes you'll use to initially install <em>Access Blocker</em>, upgrade or uninstall the plugin entirely.</p>
+    <p><i class="fas fa-exclamation-circle fa-5x red"></i><strong class="red">Notes:</strong></p>
     <ol>
-        <li>/includes/classes/ipData.php</li>
-        <li>/includes/classes/observers/auto.access_blocker.php</li>
-        <li>/includes/languages/english/extra_definitions/access_blocker_messages.php</li>
-        <li>/YOUR_ADMIN/blocked_accesses.php</li>
-        <li>/YOUR_ADMIN/includes/auto_loaders/config.access_blocker_admin.php</li>
-        <li>/YOUR_ADMIN/includes/functions/extra_functions/zen_cfg_read_only.php <span class="smaller">(Added in v1.5.0)</span></li>
-        <li>/YOUR_ADMIN/includes/init_includes/init_access_blocker_admin.php</li>
-        <li>/YOUR_ADMIN/includes/languages/english/extra_definitions/access_blocker_admin_names.php</li>
+        <li>Before you install <em>Access Blocker</em> v2.0.0 (or later), you'll need a working copy of Zen Cart 2.0.0 or later, running on a PHP version &gt;= 8.0.2.</li>
+        <li>If your Zen Cart version is <em>prior to</em> 2.1.0, there's a core-file update you'll need to apply prior to <em>Access Blocker</em>'s installation.  Refer to <a href="https://gist.github.com/lat9/9deb64d3325081d18bb0db5534bcf142#includesclassespluginsupportscriptedinstallerphp" target="_blank">this</a> GitHub gist and apply the change identified.</li>
     </ol>
-    <p>On the next admin login or admin page-refresh, the plugin will perform its automatic installation to set its default configuration values into your store's database.</p>
 
-    <h3 id="remove">Uninstall</h3>
-    <p>First, delete the plugin's files that were copied to your Zen Cart installation's file-system. Then use your admin's <em>Tools-&gt;Run SQL Patches</em> to run the file <code class="no-pad">/docs/access_blocker/uninstall/access_blocker_uninstall.sql</code>.</p>
+    <h3>Initial Installation or Upgrade</h3>
+    <p>Start by copying the <em>Access Blocker</em> distribution's <code>zc_plugins</code> directory (and all its files) to the root of your site's file-system. You should see a <code>zc_plugins/AccessBlocker</code> sub-directory when completed and &hellip;</p>
+    <ol>
+        <li>Login to your Zen Cart's admin</li>
+        <li>Navigate to <em>Modules :: Plugin Manager</em>.</li>
+        <li>Click on the row that displays a <code>Plugin Key</code> of <b>AccessBlocker</b> and click the associated <b>Install</b> button.</li>
+        <li>All finished! You'll now see new/updated configuration settings for the plugin.</li>
+    </ol>
+
+    <h3>Uninstalling</h3>
+    <p>To uninstall <em>Access Blocker</em> &hellip;</p>
+    <ol>
+        <li>Navigate to your Zen Cart admin's <em>Modules :: Plugin Manager</em>.</li>
+        <li>Click on the row that displays a <code>Plugin Key</code> of <b>AccessBlocker</b> and click the associated <b>Un-Install</b> button.</li>
+        <li>From the confirmation form, click that <b>Un-Install</b> button. That button-click will remove all the plugin's configuration settings and &quot;inactivate&quot; the plugin.</li>
+        <li>If you also want to remove the files associated with the plugin, click the <b>Clean Up</b> button.</li>
+    </ol>
 
     <h2 id="configuration">Configuration</h2>
     <p>Once you've installed <em>Access Blocker</em>, you'll see an additional option in your admin's <em>Configuration</em> menu &mdash; <b>Access Blocker</b> &mdash; with the following available settings:</p>
@@ -80,10 +89,6 @@ a[target=_blank] { text-decoration: underline; }
         <tr>
             <th>Name</th>
             <th>Description</th>
-        </tr>
-        <tr>
-            <td>Plugin Version</td>
-            <td>Identifies the current version of the plugin.  The setting's <code>last_modified</code> date is set to the version's release date.</td>
         </tr>
         <tr>
             <td>Enable Access Blocker?</td>
@@ -153,6 +158,9 @@ a[target=_blank] { text-decoration: underline; }
 
     <h2 id="changes">Change History</h2>
     <ul>
+        <li>v2.0.0-beta1, 2025-06-15:<ul>
+            <li>CHANGE: Plugin converted to an encapsulated one; support dropped for Zen Cart versions prior to 2.0.0.</li>
+        </ul></li>
         <li>v1.5.2, 2024-06-16:<ul>
             <li>BUGFIX: Don't block cron-jobs when <em>Totally restrict access on threats</em> is active.</li>
             <li>BUGFIX: Don't send <samp>ipdata.co</samp> requests for internal IP addresses.</li>

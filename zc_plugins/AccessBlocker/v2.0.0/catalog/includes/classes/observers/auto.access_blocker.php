@@ -1,31 +1,20 @@
 <?php
 // -----
 // Part of the "Access Blocker" plugin by lat9 (https://vinosdefrutastropicales.com)
-// Copyright (C) 2019-2024, Vinos de Frutas Tropicales.  All rights reserved.
+// Copyright (C) 2019-2025, Vinos de Frutas Tropicales.  All rights reserved.
 //
-// Last updated: v1.5.2
+// Last updated: v2.0.0
 //
-if (!defined('ACCESSBLOCK_WHITELISTED_IPS')) {
-    define('ACCESSBLOCK_WHITELISTED_IPS', '');
-}
-if (!defined('ACCESSBLOCK_WHITELISTED_EMAILS')) {
-    define('ACCESSBLOCK_WHITELISTED_EMAILS', '');
-}
-if (!defined('ACCESSBLOCK_RESTRICT_THREAT_ACCESS')) {
-    define('ACCESSBLOCK_RESTRICT_THREAT_ACCESS', 'false');
-}
-
 class zcObserverAccessBlocker extends base
 {
-    protected
-        $additional_ips = [],
-        $blocked_message = '',
-        $restrict_threat_access,
-        $chars_to_remove,
-        $debug,
-        $logfile;
+    protected array $additional_ips = [];
+    protected string $blocked_message = '';
+    protected bool $restrict_threat_access;
+    protected array $chars_to_remove;
+    protected bool $debug;
+    protected string $logfile;
 
-    public function __construct() 
+    public function __construct()
     {
         $this->chars_to_remove = [
             ' ',
@@ -33,7 +22,7 @@ class zcObserverAccessBlocker extends base
             "\r",
             "\t"
         ];
-        if (defined('ACCESSBLOCK_ENABLED') && ACCESSBLOCK_ENABLED === 'true') {
+        if (ACCESSBLOCK_ENABLED === 'true') {
             $this->debug = (ACCESSBLOCK_DEBUG === 'true');
             $this->logfile = DIR_FS_LOGS . '/accesses_blocked_' . date('Y_m') . '.log';
 
@@ -49,7 +38,7 @@ class zcObserverAccessBlocker extends base
             $this->denyIfThreatAccessRestricted();
 
             $this->attach(
-                $this, 
+                $this,
                 [
                     'NOTIFY_CONTACT_US_CAPTCHA_CHECK',
                     'NOTIFY_CREATE_ACCOUNT_CAPTCHA_CHECK',
@@ -156,7 +145,7 @@ class zcObserverAccessBlocker extends base
         }
     }
 
-    protected function isAccessBlocked()
+    protected function isAccessBlocked(): bool
     {
         global $ipData;
 
@@ -249,7 +238,7 @@ class zcObserverAccessBlocker extends base
         return ($organization === '') ? false : $organization;
     }
 
-    protected function isIpBlocked($remote_addr)
+    protected function isIpBlocked($remote_addr): bool
     {
         $ip_blocked = false;
         if (ACCESSBLOCK_BLOCKED_IPS !== '') {
@@ -267,7 +256,7 @@ class zcObserverAccessBlocker extends base
         return $ip_blocked;
     }
 
-    protected function isIpWhitelisted($remote_addr)
+    protected function isIpWhitelisted($remote_addr): bool
     {
         $ip_whitelisted = false;
         if (ACCESSBLOCK_WHITELISTED_IPS !== '') {
@@ -284,7 +273,7 @@ class zcObserverAccessBlocker extends base
         return $ip_whitelisted;
     }
 
-    protected function isEmailAddressBlocked($email_address)
+    protected function isEmailAddressBlocked($email_address): bool
     {
         $email_blocked = false;
         if (ACCESSBLOCK_BLOCKED_HOSTS !== '') {
@@ -324,7 +313,7 @@ class zcObserverAccessBlocker extends base
         return $email_blocked;
     }
 
-    protected function isEmailWhitelisted($email_address)
+    protected function isEmailWhitelisted($email_address): bool
     {
         $is_whitelisted = false;
         if (ACCESSBLOCK_WHITELISTED_EMAILS !== '') {
@@ -341,7 +330,7 @@ class zcObserverAccessBlocker extends base
         return $is_whitelisted;
     }
 
-    protected function isContentBlocked($enquiry)
+    protected function isContentBlocked($enquiry): bool
     {
         $content_blocked = false;
         if (ACCESSBLOCK_BLOCKED_PHRASES !== '') {
@@ -359,10 +348,10 @@ class zcObserverAccessBlocker extends base
         return $content_blocked;
     }
 
-    protected function isCompanyBlocked()
+    protected function isCompanyBlocked(): bool
     {
         $company_blocked = false;
-        if (!empty($_POST['company']) && defined('ACCESSBLOCK_BLOCKED_COMPANIES') && !empty(ACCESSBLOCK_BLOCKED_COMPANIES)) {
+        if (!empty($_POST['company']) && !empty(ACCESSBLOCK_BLOCKED_COMPANIES)) {
             $blocked_companies = explode(',', str_replace($this->chars_to_remove, '', ACCESSBLOCK_BLOCKED_COMPANIES));
             $create_account_company = strtolower($_POST['company']);
             foreach ($blocked_companies as $current_company) {
@@ -377,7 +366,7 @@ class zcObserverAccessBlocker extends base
         return $company_blocked;
     }
 
-    protected function denyIfThreatAccessRestricted()
+    protected function denyIfThreatAccessRestricted(): void
     {
         if ($this->restrict_threat_access === true && PHP_SAPI !== 'cli' && !empty($_SESSION['access_blocked'])) {
             header('HTTP/1.0 410 Gone');
@@ -385,7 +374,7 @@ class zcObserverAccessBlocker extends base
         }
     }
 
-    protected function logBlockedAccesses($blocked_page, $email_address)
+    protected function logBlockedAccesses($blocked_page, $email_address): void
     {
         if ($this->debug === true) {
             $ip_address = (!empty($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : 'not provided';
