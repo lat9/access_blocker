@@ -1,4 +1,4 @@
-# Access Blocker for Zen Cart v1.5.5 and Later, v1.5.2
+# Access Blocker for Zen Cart v2.0.0 and Later
 
 ![access_blocker](https://socialify.git.ci/lat9/access_blocker/image?description=1&font=Inter&forks=1&issues=1&language=1&name=1&owner=1&pattern=Floating+Cogs&pulls=1&stargazers=1&theme=Auto)
 
