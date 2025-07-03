@@ -3,7 +3,7 @@
 // Part of the "Access Blocker" plugin by lat9 (https://vinosdefrutastropicales.com)
 // Copyright (C) 2019-2025, Vinos de Frutas Tropicales.  All rights reserved.
 //
-// Last updated: v2.0.0
+// Last updated: v2.0.1
 //
 class zcObserverAccessBlocker extends base
 {
@@ -181,7 +181,7 @@ class zcObserverAccessBlocker extends base
             if (ACCESSBLOCK_IPDATA_API_KEY !== '') {
                 if (!isset($_SESSION['ipData']->ip) || $_SESSION['ipData']->ip !== $_SERVER['REMOTE_ADDR']) {
                     if (!class_exists('ipData')) {
-                        require DIR_WS_CLASSES . 'ipData.php';
+                        require dirname(__DIR__) . '/ipData.php';
                     }
                     $ipData = new ipData(ACCESSBLOCK_IPDATA_API_KEY, $_SERVER['REMOTE_ADDR']);
                     $response = $ipData->getResponse();
