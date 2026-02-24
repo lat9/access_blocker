@@ -1,9 +1,9 @@
 <?php
 // -----
 // Part of the "Access Blocker" plugin by lat9 (https://vinosdefrutastropicales.com)
-// Copyright (C) 2019-2025, Vinos de Frutas Tropicales.  All rights reserved.
+// Copyright (C) 2019-2026, Vinos de Frutas Tropicales.  All rights reserved.
 //
-// Last updated: v2.0.1
+// Last updated: v2.0.2
 //
 class zcObserverAccessBlocker extends base
 {
@@ -120,7 +120,7 @@ class zcObserverAccessBlocker extends base
                     $this->logBlockedAccesses('password_forgotten', $email_address);
                     $this->denyIfThreatAccessRestricted();
 
-                    $messageStack->add_session('login', $sessionMessage, 'success');
+                    $GLOBALS['messageStack']->add_session('login', $sessionMessage, 'success');
                     zen_redirect(zen_href_link(FILENAME_LOGIN, '', 'SSL'));
                 }
                 break;
