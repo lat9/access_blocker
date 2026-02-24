@@ -27,7 +27,7 @@ class ScriptedInstaller extends ScriptedInstallBase
 
         $sql =
             "INSERT IGNORE INTO " . TABLE_CONFIGURATION . " 
-                (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added, use_function, set_function)
+                (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
              VALUES
                 ('Enable Access Blocker?', 'ACCESSBLOCK_ENABLED', 'false', 'When enabled, the plugin blocks unwanted accesses to your store\'s <code>ask_a_question</code>, <code>contact_us</code>, <code>create_account</code> and <code>login</code> pages, based on &quot;threats&quot; identified by the ipdata.co service and/or additional elements identified below.<br><br>Default: <b>false</b>', $cgi, now(), 5, NULL, 'zen_cfg_select_option([\'true\', \'false\'],'),
 
