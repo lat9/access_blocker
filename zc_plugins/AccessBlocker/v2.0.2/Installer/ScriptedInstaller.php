@@ -1,9 +1,9 @@
 <?php
 // -----
 // Admin-level installation script for the "encapsulated" Access Blocker plugin for Zen Cart, by lat9.
-// Copyright (C) 2019-2025, Vinos de Frutas Tropicales.
+// Copyright (C) 2019-2026, Vinos de Frutas Tropicales.
 //
-// Last updated: v2.0.0 (new)
+// Last updated: v2.0.2
 //
 use Zencart\PluginSupport\ScriptedInstaller as ScriptedInstallBase;
 
@@ -183,60 +183,5 @@ class ScriptedInstaller extends ScriptedInstallBase
         }
 
         return !$errorOccurred;
-    }
-
-    // -----
-    // Ensure that the sort-order of EO's configuration settings are as provided on
-    // the initial install and remove any no-longer-used settings.
-    //
-    protected function updateFromNonEncapsulatedVersion(): void
-    {
-        $key_to_sort = [
-            'EO_ADDRESSES_DISPLAY_ORDER' => 1,
-            'EO_SHIPPING_DROPDOWN_STRIP_TAGS' => 11,
-            'EO_PRODUCT_PRICE_CALC_METHOD' => 20,
-            'EO_PRODUCT_PRICE_CALC_DEFAULT' => 24,
-            'EO_STATUS_HISTORY_DISPLAY_ORDER' => 30,
-            'EO_CUSTOMER_NOTIFICATION_DEFAULT' => 40,
-            'EO_SHOW_EDIT_ORDER_ICON' => 50,
-            'EO_SHOW_EDIT_ORDER_BUTTON' => 52,
-            'EO_DEBUG_ACTION_LEVEL' => 999,
-        ];
-        foreach ($key_to_sort as $key => $sort) {
-            $this->updateConfigurationKey($key, ['sort_order' => $sort]);
-        }
-
-        $this->executeInstallerSql(
-            "DELETE FROM " . TABLE_CONFIGURATION . "
-              WHERE configuration_key IN (
-                'EO_VERSION',
-                'EO_SHIPPING_TAX',
-                'EO_MOCK_SHOPPING_CART',
-                'EO_INIT_FILE_MISSING'
-              )"
-        );
-
-        // -----
-        // EO 5.0.0 removes support for 'Auto' pricing updates.
-        //
-        $this->updateConfigurationKey('EO_PRODUCT_PRICE_CALC_METHOD', [
-            'configuration_description' =>
-                'Choose the <em>method</em> that &quot;EO&quot; uses to calculate product prices when an order is updated, one of:<ol><li><b>AutoSpecials</b>: Each product-price is re-calculated as if placing the order on the storefront. If your products have attributes, this enables changes to a product\'s attributes to automatically update the associated product-price.</li><li><b>Manual</b>: Each product-price is based on the <b><i>admin-entered price</i></b> for the product.</li><li><b>Choose</b>: The product-price calculation method varies on an order-by-order basis, via the &quot;tick&quot; of a checkbox.  The default method used is defined by the <em>Product Price Calculation &mdash; Default</em> setting.</li></ol>',
-            'set_function' => 'zen_cfg_select_option([\'AutoSpecials\', \'Manual\', \'Choose\'],'
-        ]);
-        if (defined('EO_PRODUCT_PRICE_CALC_METHOD') && EO_PRODUCT_PRICE_CALC_METHOD === 'Auto') {
-            $this->updateConfigurationKey('EO_PRODUCT_PRICE_CALC_METHOD', [
-                'configuration_value' => 'AutoSpecials',
-            ]);
-        }
-
-        $this->updateConfigurationKey('EO_PRODUCT_PRICE_CALC_DEFAULT', [
-            'set_function' => 'zen_cfg_select_option([\'AutoSpecials\', \'Manual\'],',
-        ]);
-        if (defined('EO_PRODUCT_PRICE_CALC_DEFAULT') && EO_PRODUCT_PRICE_CALC_DEFAULT === 'Auto') {
-            $this->updateConfigurationKey('EO_PRODUCT_PRICE_CALC_DEFAULT', [
-                'configuration_value' => 'AutoSpecials',
-            ]);
-        }
     }
 }
