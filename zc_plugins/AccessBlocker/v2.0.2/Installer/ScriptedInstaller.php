@@ -53,6 +53,8 @@ class ScriptedInstaller extends ScriptedInstallBase
 
                 ('Block by: Message Keywords', 'ACCESSBLOCK_BLOCKED_PHRASES', '', 'Enter, using a comma-separated list, any words in a <code>contact_us</code> message that should result in a block.  If the message contains any of the words entered here, the associated <em>contact-us</em> email will not be sent.', $cgi, now(), 60, NULL, 'zen_cfg_textarea('),
 
+                ('Block by: Create-account Company', 'ACCESSBLOCK_BLOCKED_COMPANIES', '', 'Enter, using a comma-separated list, any <em>Company</em> entries to be blocked from creating an account.  If the company value entered on the <code>create_account</code> page <em>contains</em> any of the strings entered here, the account-creation will be blocked.', $cgi, now(), 70, NULL, 'zen_cfg_textarea('),
+
                 ('Enable Debug?', 'ACCESSBLOCK_DEBUG', 'false', 'When enabled, the plugin creates a monthly log, <code>/logs/accesses_blocked_YYYY_mm.log</code>, of the accesses denied by the plugin.', $cgi, now(), 499, NULL, 'zen_cfg_select_option([\'true\', \'false\'],')";
         $this->executeInstallerSql($sql);
 
@@ -87,14 +89,31 @@ class ScriptedInstaller extends ScriptedInstallBase
     }
 
     // -----
-    // Not used, initially, but included for the possibility of future upgrades!
-    //
-    // Note: This (https://github.com/zencart/zencart/pull/6498) Zen Cart PR must
+    // Note: These (https://github.com/zencart/zencart/pull/6498 and https://github.com/zencart/zencart/pull/6456) Zen Cart PRs must
     // be present in the base code or a PHP Fatal error is generated due to the
-    // function signature difference.
+    // function signature difference and/or missing method.
     //
     protected function executeUpgrade($oldVersion)
     {
+        // -----
+        // Retrieve the configuration-group information for the Access Blocker settings.
+        //
+        $cgi = $this->getOrCreateConfigGroupId(
+            $this->configGroupTitle,
+            $this->configGroupTitle . ' Settings'
+        );
+
+        // -----
+        // Continue with the upgrade ...
+        //
+        // v2.0.2+: Restore the ACCESSBLOCK_BLOCKED_COMPANIES setting.
+        //
+        $this->executeInstallerSql(
+            "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
+                (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, date_added, sort_order, use_function, set_function)
+             VALUES
+                ('Block by: Create-account Company', 'ACCESSBLOCK_BLOCKED_COMPANIES', '', 'Enter, using a comma-separated list, any <em>Company</em> entries to be blocked from creating an account.  If the company value entered on the <code>create_account</code> page <em>contains</em> any of the strings entered here, the account-creation will be blocked.', $cgi, now(), 70, NULL, 'zen_cfg_textarea(')"
+        );
     }
 
     protected function executeUninstall()
@@ -183,5 +202,47 @@ class ScriptedInstaller extends ScriptedInstallBase
         }
 
         return !$errorOccurred;
+    }
+
+    /**
+     * @since ZC v2.1.0
+     */
+    protected function getOrCreateConfigGroupId(string $config_group_title, string $config_group_description, ?int $sort_order = 1): int
+    {
+        if (method_exists(get_parent_class($this), 'getOrCreateConfigGroupId')) {
+            return parent::getOrCreateConfigGroupId($config_group_title, $config_group_description, $sort_order);
+        }
+
+        $config_group_title = $this->dbConn->prepare_input($config_group_title);
+        $config_group_description = $this->dbConn->prepare_input($config_group_description);
+        $sort_order = (int)($sort_order ?? 0);
+
+        $sql =
+            "SELECT configuration_group_id
+               FROM " . TABLE_CONFIGURATION_GROUP . "
+              WHERE configuration_group_title = '$config_group_title'
+              LIMIT 1";
+        $check = $this->executeInstallerSelectQuery($sql);
+        if (!$check->EOF) {
+            return (int)$check->fields['configuration_group_id'];
+        }
+
+        $sql =
+            "INSERT INTO " . TABLE_CONFIGURATION_GROUP . "
+                (configuration_group_title, configuration_group_description, sort_order, visible)
+             VALUES
+                ('$config_group_title', '$config_group_description', $sort_order, 1)";
+        $this->executeInstallerSql($sql);
+
+        $sql = "SELECT configuration_group_id FROM " . TABLE_CONFIGURATION_GROUP . " WHERE configuration_group_title = '$config_group_title' LIMIT 1";
+        $result = $this->executeInstallerSelectQuery($sql);
+        $cgi = (int)$result->fields['configuration_group_id'];
+
+        if (empty($sort_order)) {
+            $sql = "UPDATE " . TABLE_CONFIGURATION_GROUP . " SET sort_order = $cgi WHERE configuration_group_id = $cgi LIMIT 1";
+            $this->executeInstallerSql($sql);
+        }
+
+        return $cgi;
     }
 }
