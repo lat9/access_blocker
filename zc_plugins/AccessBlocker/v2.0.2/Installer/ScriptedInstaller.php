@@ -106,7 +106,7 @@ class ScriptedInstaller extends ScriptedInstallBase
         // -----
         // Continue with the upgrade ...
         //
-        // v2.0.2+: Restore the ACCESSBLOCK_BLOCKED_COMPANIES setting.
+        // v2.0.2+: Restore the ACCESSBLOCK_BLOCKED_COMPANIES setting and correct sort_order.
         //
         $this->executeInstallerSql(
             "INSERT IGNORE INTO " . TABLE_CONFIGURATION . "
@@ -114,6 +114,36 @@ class ScriptedInstaller extends ScriptedInstallBase
              VALUES
                 ('Block by: Create-account Company', 'ACCESSBLOCK_BLOCKED_COMPANIES', '', 'Enter, using a comma-separated list, any <em>Company</em> entries to be blocked from creating an account.  If the company value entered on the <code>create_account</code> page <em>contains</em> any of the strings entered here, the account-creation will be blocked.', $cgi, now(), 70, NULL, 'zen_cfg_textarea(')"
         );
+
+        // -----
+        // v2.0.0/2.0.1 of Access Blocker's installation scripts erroneously swapped the
+        // date_added and sort_order fields on a configuration insert. Correct the sort-orders
+        // on a plugin update.
+        //
+        $corrected_sort_orders = [
+            'ACCESSBLOCK_ENABLED' => 5,
+            'ACCESSBLOCK_IPDATA_API_KEY' => 10,
+            'ACCESSBLOCK_USE_EU_ENDPOINT' => 11,
+            'ACCESSBLOCK_RESTRICT_THREAT_ACCESS' => 12,
+            'ACCESSBLOCK_BLOCKED_COUNTRIES' => 15,
+            'ACCESSBLOCK_BLOCKED_ORGS' => 20,
+            'ACCESSBLOCK_BLOCKED_IPS' => 30,
+            'ACCESSBLOCK_WHITELISTED_IPS' => 31,
+            'ACCESSBLOCK_BLOCKED_HOSTS' => 40,
+            'ACCESSBLOCK_BLOCKED_EMAILS' => 50,
+            'ACCESSBLOCK_WHITELISTED_EMAILS' => 51,
+            'ACCESSBLOCK_BLOCKED_PHRASES' => 60,
+            'ACCESSBLOCK_BLOCKED_COMPANIES' => 70,
+            'ACCESSBLOCK_DEBUG' => 499,
+        ];
+        foreach ($corrected_sort_orders as $key => $sort_order) {
+            $this->executeInstallerSql(
+                "UPDATE " . TABLE_CONFIGURATION . "
+                    SET sort_order = $sort_order
+                WHERE configuration_key = '$key'
+                LIMIT 1"
+            );
+        }
     }
 
     protected function executeUninstall()
