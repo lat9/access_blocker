@@ -109,19 +109,27 @@ class zcObserverAccessBlocker extends base
                     $this->logBlockedAccesses('create_account', $_POST['email_address']);
                     $this->denyIfThreatAccessRestricted();
 
-                    $GLOBALS['messageStack']->add_session('header', ACCESSBLOCK_CREATE_ACCOUNT_SUBMITTED_FOR_REVIEW, 'success');
+                    $message_override = false;
+                    $message = ACCESSBLOCK_CREATE_ACCOUNT_SUBMITTED_FOR_REVIEW;
+                    $this->notify('NOTIFY_ACCESSBLOCKED_CREATE_ACCOUNT', $message, $message_override);
+
+                    $GLOBALS['messageStack']->add_session('header', $message_override !== false ? $message_override : $message, 'success');
                     zen_redirect(zen_href_link(FILENAME_SHOPPING_CART));
                 }
                 break;
 
             case 'NOTIFY_PASSWORD_FORGOTTEN_VALIDATED':
                 $email_address = $p1;
-                $sessionMessage = $p2;
+
                 if (!$this->isEmailWhitelisted($email_address) && ($this->isEmailAddressBlocked($email_address) || $this->isAccessBlocked())) {
                     $this->logBlockedAccesses('password_forgotten', $email_address);
                     $this->denyIfThreatAccessRestricted();
 
-                    $GLOBALS['messageStack']->add_session('login', $sessionMessage, 'success');
+                    $message_override = false;
+                    $sessionMessage = $p2;
+                    $this->notify('NOTIFY_ACCESSBLOCKED_PASSWORD_FORGOTTEN', $sessionMessage, $message_override);
+
+                    $GLOBALS['messageStack']->add_session('login', $message_override !== false ? $message_override : $sessionMessage, 'success');
                     zen_redirect(zen_href_link(FILENAME_LOGIN, '', 'SSL'));
                 }
                 break;
@@ -162,7 +170,12 @@ class zcObserverAccessBlocker extends base
                 if (!$this->isEmailWhitelisted($_POST['email_address']) && ($this->isEmailAddressBlocked($_POST['email_address']) || $this->isAccessBlocked())) {
                     $this->logBlockedAccesses('guest_checkout', $_POST['email_address']);
                     $this->denyIfThreatAccessRestricted();
-                    $p2['email_address'] = ENTRY_EMAIL_ADDRESS_CHECK_ERROR;
+
+                    $message_override = false;
+                    $message = ENTRY_EMAIL_ADDRESS_CHECK_ERROR;
+                    $this->notify('NOTIFY_ACCESSBLOCKED_GUEST_EMAIL', $message, $message_override);
+
+                    $p2['email_address'] = $message_override !== false ? $message_override : $message;
                 }
                 break;
 
