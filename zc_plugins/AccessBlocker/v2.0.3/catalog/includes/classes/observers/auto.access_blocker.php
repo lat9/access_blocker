@@ -3,7 +3,7 @@
 // Part of the "Access Blocker" plugin by lat9 (https://vinosdefrutastropicales.com)
 // Copyright (C) 2019-2026, Vinos de Frutas Tropicales.  All rights reserved.
 //
-// Last updated: v2.0.2
+// Last updated: v2.0.3
 //
 class zcObserverAccessBlocker extends base
 {
@@ -46,6 +46,7 @@ class zcObserverAccessBlocker extends base
                     'NOTIFY_OPC_GUEST_CHECKOUT_OVERRIDE',
                     'NOTIFY_ASK_A_QUESTION_CAPTCHA_CHECK',
                     'NOTIFY_PASSWORD_FORGOTTEN_VALIDATED',
+                    'NOTIFY_OPC_VALIDATE_SAVE_GUEST_INFO',
                 ]
             );
         }
@@ -150,6 +151,18 @@ class zcObserverAccessBlocker extends base
                     $p2 = false;
                     $this->logBlockedAccesses('guest_checkout', 'n/a');
                     $this->denyIfThreatAccessRestricted();
+                }
+                break;
+
+            // -----
+            // If the email address submitted for guest-checkout is on the
+            // site's blocked-list, disallow the guest checkout from continuing.
+            //
+            case 'NOTIFY_OPC_VALIDATE_SAVE_GUEST_INFO':
+                if (!$this->isEmailWhitelisted($_POST['email_address']) && ($this->isEmailAddressBlocked($_POST['email_address']) || $this->isAccessBlocked())) {
+                    $this->logBlockedAccesses('guest_checkout', $_POST['email_address']);
+                    $this->denyIfThreatAccessRestricted();
+                    $p2['email_address'] = ENTRY_EMAIL_ADDRESS_CHECK_ERROR;
                 }
                 break;
 
