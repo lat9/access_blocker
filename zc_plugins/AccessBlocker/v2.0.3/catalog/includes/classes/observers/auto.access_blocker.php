@@ -22,7 +22,7 @@ class zcObserverAccessBlocker extends base
             "\r",
             "\t"
         ];
-        if (ACCESSBLOCK_ENABLED === 'true') {
+        if (defined('ACCESSBLOCK_ENABLED') && ACCESSBLOCK_ENABLED === 'true') {
             $this->debug = (ACCESSBLOCK_DEBUG === 'true');
             $this->logfile = DIR_FS_LOGS . '/accesses_blocked_' . date('Y_m') . '.log';
 
@@ -267,13 +267,14 @@ class zcObserverAccessBlocker extends base
     }
 
     // -----
-    // The 'organisation' property previously returned by ipdata.co is now returned in either
-    // the `company->name` or `asn->name` property (or both).
+    // The 'organisation' property previously returned by ipdata.co is now returned in
+    // the `company->name` or `asn->asn` or `asn->name` property.
     //
     protected function getIpOrganization()
     {
         $organization = $_SESSION['ipData']->company->name ?? '';
-        $organization .= $_SESSION['ipData']->asn->name ?? '';
+        $organization .= ($_SESSION['ipData']->asn->asn ?? '');
+        $organization .= ($_SESSION['ipData']->asn->name ?? '');
         return ($organization === '') ? false : $organization;
     }
 
