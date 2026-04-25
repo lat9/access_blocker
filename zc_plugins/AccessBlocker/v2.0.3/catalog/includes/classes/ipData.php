@@ -1,9 +1,9 @@
 <?php
 // -----
 // Part of the "Access Blocker" plugin by lat9 (https://vinosdefrutastropicales.com)
-// Copyright (c) 2019-2024, Vinos de Frutas Tropicales.
+// Copyright (c) 2019-2026, Vinos de Frutas Tropicales.
 //
-// Last updated: v1.5.2
+// Last updated: v2.0.3
 //
 // A class to gather and return information about a specified IP address using the
 // service provided by https://ipdata.co.
@@ -52,7 +52,6 @@ class ipData
         $error_msg = curl_error($ch);
         $error_num = curl_errno($ch);
         $comm_info = @curl_getinfo($ch);
-        curl_close($ch);
 
         if ($error_num !== 0) {
             $this->debug("Error returned checking $ip_address$api_key: [$error_num] - $error_msg. " . var_export($comm_info, true) . var_export($response, true), 'error');
@@ -65,11 +64,6 @@ class ipData
     public function getResponse()
     {
         return $this->response;
-    }
-
-    public function getIpOrganization()
-    {
-        return ($this->response === false) ? false : $this->response->organisation;
     }
 
     public function getIpCountry()
