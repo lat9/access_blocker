@@ -235,6 +235,9 @@ class zcObserverAccessBlocker extends base
                         if ($ip_organization !== false) {
                             $blocked_orgs = explode(',', str_replace($this->chars_to_remove, '', zen_config('ACCESSBLOCK_BLOCKED_ORGS')));
                             foreach ($blocked_orgs as $next_org) {
+                                if ($next_org === '') {
+                                    continue;
+                                }
                                 if (stripos($ip_organization, $next_org) !== false) {
                                     $this->blocked_message .= "Access blocked by IP-based organization ($next_org). ";
                                     $access_blocked = true;
@@ -286,7 +289,10 @@ class zcObserverAccessBlocker extends base
             $blocked_ips = explode(',', str_replace($this->chars_to_remove, '', zen_config('ACCESSBLOCK_BLOCKED_IPS')));
             $remote_addr = (string)$remote_addr;
             foreach ($blocked_ips as $ip_address) {
-                if (strpos($remote_addr, $ip_address) === 0) {
+                if ($ip_address === '') {
+                    continue;
+                }
+                if (str_starts_with($remote_addr, $ip_address)) {
                     $this->blocked_message .= "Remote address is blocked by configuration ($ip_address). ";
                     $ip_blocked = true;
                     $_SESSION['access_blocked'] = true;
@@ -304,7 +310,10 @@ class zcObserverAccessBlocker extends base
             $whitelisted_ips = explode(',', str_replace($this->chars_to_remove, '', zen_config('ACCESSBLOCK_WHITELISTED_IPS')));
             $remote_addr = (string)$remote_addr;
             foreach ($whitelisted_ips as $ip_address) {
-                if (strpos($remote_addr, $ip_address) === 0) {
+                if ($ip_address === '') {
+                    continue;
+                }
+                if (str_starts_with($remote_addr, $ip_address)) {
                     $ip_whitelisted = true;
                     unset($_SESSION['access_blocked']);
                     break;
@@ -327,6 +336,9 @@ class zcObserverAccessBlocker extends base
             $blocked_hosts = explode(',', str_replace($this->chars_to_remove, '', zen_config('ACCESSBLOCK_BLOCKED_HOSTS')));
             $email_host_address = (string)$email_host_address;
             foreach ($blocked_hosts as $current_host) {
+                if ($current_host === '') {
+                    continue;
+                }
                 if (stripos($email_host_address, $current_host) !== false) {
                     $this->blocked_message .= "Access blocked due to IP host address ($current_host). ";
                     $email_blocked = true;
@@ -339,6 +351,9 @@ class zcObserverAccessBlocker extends base
             $email_address = (string)$email_address;
             $blocked_emails = explode(',', str_replace($this->chars_to_remove, '', zen_config('ACCESSBLOCK_BLOCKED_EMAILS')));
             foreach ($blocked_emails as $current_email) {
+                if ($current_email === '') {
+                    continue;
+                }
                 if (stripos($email_address, $current_email) !== false) {
                     $this->blocked_message .= "Access blocked by email address ($email_address). ";
                     $email_blocked = true;
@@ -361,6 +376,9 @@ class zcObserverAccessBlocker extends base
             $email_address = (string)$email_address;
             $whitelisted_emails = explode(',', str_replace($this->chars_to_remove, '', zen_config('ACCESSBLOCK_WHITELISTED_EMAILS')));
             foreach ($whitelisted_emails as $current_email) {
+                if ($current_email === '') {
+                    continue;
+                }
                 if (stripos($email_address, $current_email) !== false) {
                     $is_whitelisted = true;
                     unset($_SESSION['access_blocked']);
@@ -378,6 +396,9 @@ class zcObserverAccessBlocker extends base
             $enquiry = (string)$enquiry;
             $blocked_phrases = explode(',', str_replace($this->chars_to_remove, '', zen_config('ACCESSBLOCK_BLOCKED_PHRASES')));
             foreach ($blocked_phrases as $current_phrase) {
+                if ($current_phrase === '') {
+                    continue;
+                }
                 if (stripos($enquiry, $current_phrase) !== false) {
                     $this->blocked_message .= "Access blocked by message content ($current_phrase): $enquiry. ";
                     $content_blocked = true;
@@ -396,6 +417,9 @@ class zcObserverAccessBlocker extends base
             $blocked_companies = explode(',', str_replace($this->chars_to_remove, '', zen_config('ACCESSBLOCK_BLOCKED_COMPANIES')));
             $create_account_company = strtolower($_POST['company']);
             foreach ($blocked_companies as $current_company) {
+                if ($current_company === '') {
+                    continue;
+                }
                 if (stripos($create_account_company, $current_company) !== false) {
                     $this->blocked_message .= "Access blocked by entered company ($current_company): $create_account_company. ";
                     $company_blocked = true;
