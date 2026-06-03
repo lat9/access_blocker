@@ -3,7 +3,7 @@
 // Part of the "Access Blocker" plugin by lat9 (https://vinosdefrutastropicales.com)
 // Copyright (C) 2019-2026, Vinos de Frutas Tropicales.  All rights reserved.
 //
-// Last updated: v2.0.3
+// Last updated: v2.0.4
 //
 class zcObserverAccessBlocker extends base
 {
@@ -68,13 +68,14 @@ class zcObserverAccessBlocker extends base
                 // -----
                 // If either the email-address, content or the base access is blocked, redirect back to the page
                 // with a pseudo-success action, noting that the page's header_php.php has already determined that
-                // the submitted 'pid' value is valid.
+                // the submitted '$pid' value is valid.
                 //
                 if (!$this->isEmailWhitelisted($_POST['email']) && ($this->isEmailAddressBlocked($_POST['email']) || $this->isContentBlocked($_POST['enquiry']) || $this->isAccessBlocked())) {
                     $this->logBlockedAccesses('ask_a_question', $_POST['email']);
                     $this->denyIfThreatAccessRestricted();
 
-                    zen_redirect(zen_href_link(FILENAME_ASK_A_QUESTION, 'action=success&pid=' . (int)$_GET['pid'], 'SSL'));
+                    $pid = $_GET['pID'] ?? $_GET['pid'] ?? $_GET['products_id'] ?? $_GET['product_id'] ?? false;
+                    zen_redirect(zen_href_link(FILENAME_ASK_A_QUESTION, 'action=success&pid=' . (int)$pid, 'SSL'));
                 }
                 break;
 
