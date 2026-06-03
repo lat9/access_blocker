@@ -3,17 +3,21 @@
 // Part of the "Access Blocker" plugin by lat9 (https://vinosdefrutastropicales.com)
 // Copyright (c) 2019-2026, Vinos de Frutas Tropicales.
 //
-// Last updated: v2.0.3
+// Last updated: v2.1.0
 //
 // A class to gather and return information about a specified IP address using the
 // service provided by https://ipdata.co.
 //
-if (!defined('IPDATA_LOGGING')) {
-    define('IPDATA_LOGGING', 'false');
-}
-if (!defined('ACCESSBLOCK_USE_EU_ENDPOINT')) {
-    define('ACCESSBLOCK_USE_EU_ENDPOINT', 'false');
-}
+
+// -----
+// A "soft" setting to control this class' logging of its request/response
+// information, one of:
+//
+// 'false' ... Only interface errors are logged
+// 'all' ..... Log all requests and responses
+//
+zen_define_default('IPDATA_LOGGING', 'false');
+
 class ipData
 {
     protected $response;
@@ -38,7 +42,7 @@ class ipData
         $ch = curl_init();
 
         $api_key = (empty($api_key)) ? '' : "?api-key=$api_key";
-        $endpoint = (ACCESSBLOCK_USE_EU_ENDPOINT === 'false') ? 'https://api.ipdata.co/' : 'https://eu-api.ipdata.co/';
+        $endpoint = (zen_config('ACCESSBLOCK_USE_EU_ENDPOINT') === 'false') ? 'https://api.ipdata.co/' : 'https://eu-api.ipdata.co/';
 
         curl_setopt($ch, CURLOPT_URL, $endpoint . $ip_address . $api_key);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
