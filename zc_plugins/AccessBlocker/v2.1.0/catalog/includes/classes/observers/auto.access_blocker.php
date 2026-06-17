@@ -49,6 +49,19 @@ class zcObserverAccessBlocker extends base
                     'NOTIFY_OPC_VALIDATE_SAVE_GUEST_INFO',
                 ]
             );
+
+            // -----
+            // If a successful redirect to the ask-a-question or contact-us page was due
+            // to a blocked access, look for the end-of-footer notification.
+            //
+            global $current_page_base;
+            if (in_array($current_page_base, [FILENAME_ASK_A_QUESTION, FILENAME_CONTACT_US])) {
+                if (($_GET['action'] ?? false) === 'success' && isset($_SESSION['accessblock_success'])) {
+                    $this->attach($this, [
+                        'NOTIFY_FOOTER_END',
+                    ]);
+                }
+            }
         }
     }
 
@@ -74,6 +87,8 @@ class zcObserverAccessBlocker extends base
                     $this->logBlockedAccesses('ask_a_question', $_POST['email']);
                     $this->denyIfThreatAccessRestricted();
 
+                    $_SESSION['accessblock_success'] = true;
+
                     $pid = $_GET['pID'] ?? $_GET['pid'] ?? $_GET['products_id'] ?? $_GET['product_id'] ?? false;
                     zen_redirect(zen_href_link(FILENAME_ASK_A_QUESTION, 'action=success&pid=' . (int)$pid, 'SSL'));
                 }
@@ -92,6 +107,8 @@ class zcObserverAccessBlocker extends base
                 if (!$this->isEmailWhitelisted($_POST['email']) && ($this->isEmailAddressBlocked($_POST['email']) || $this->isContentBlocked($_POST['enquiry']) || $this->isAccessBlocked())) {
                     $this->logBlockedAccesses('contact_us', $_POST['email']);
                     $this->denyIfThreatAccessRestricted();
+
+                    $_SESSION['accessblock_success'] = true;
 
                     zen_redirect(zen_href_link(FILENAME_CONTACT_US, 'action=success', 'SSL'));
                 }
@@ -178,6 +195,36 @@ class zcObserverAccessBlocker extends base
 
                     $p2['email_address'] = $message_override !== false ? $message_override : $message;
                 }
+                break;
+
+            // -----
+            // This event is only attached on the contact-us/ask-a-question pages if a blocked
+            // access resulted in the 'success' action.
+            //
+            // Some javascript is inserted which will replace the current "success" message with
+            // one that's customized for the blocked-action condition.
+            //
+            case 'NOTIFY_FOOTER_END':
+                unset($_SESSION['accessblock_success']);
+
+                global $current_page_base;
+                $success_message = ($current_page_base === FILENAME_CONTACT_US) ? 'ACCESSBLOCK_CONTACT_US_SUCCESS' : 'ACCESSBLOCK_ASK_A_QUESTION_SUCCESS';
+                if (!defined($success_message)) {
+                    return;
+                }
+                $success_message = constant($success_message);
+
+                // -----
+                // Note: The selectors used in the jQuery below target the success message in the default/responsive_classic and
+                // bootstrap templates, respectively.
+                //
+?>
+<script>
+$(function() {
+    $('div.centerColumn div.success, div.centerColumn div.content').html(<?= json_encode($success_message) ?>);
+});
+</script>
+<?php
                 break;
 
             default:
