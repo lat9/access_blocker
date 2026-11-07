@@ -158,7 +158,7 @@ class zcObserverAccessBlocker extends base
                 // authorized, perform a "quick return" (to prevent PHP notices generated for possibly
                 // missing values and let that header processing perform its normal processing.
                 //
-                if ($p3 === false) {
+                if ($p3 === false || empty($_POST['email_address'])) {
                     return;
                 }
 
@@ -185,6 +185,10 @@ class zcObserverAccessBlocker extends base
             // site's blocked-list, disallow the guest checkout from continuing.
             //
             case 'NOTIFY_OPC_VALIDATE_SAVE_GUEST_INFO':
+                if (empty($_POST['email_address'])) {
+                    return;
+                }
+
                 if (!$this->isEmailWhitelisted($_POST['email_address']) && ($this->isEmailAddressBlocked($_POST['email_address']) || $this->isAccessBlocked())) {
                     $this->logBlockedAccesses('guest_checkout', $_POST['email_address']);
                     $this->denyIfThreatAccessRestricted();
